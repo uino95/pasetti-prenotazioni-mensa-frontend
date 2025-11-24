@@ -1,0 +1,47 @@
+{
+  "app": {
+    "name": "Prenotazioni Mensa"
+  },
+  "auth": {
+    "login": "Accedi",
+    "username": "Nome utente",
+    "password": "Password",
+    "loggingIn": "Accesso in corso...",
+    "loginError": "Credenziali non valide",
+    "logout": "Esci"
+  },
+  "menu": {
+    "title": "Menu del Giorno",
+    "loading": "Caricamento menu...",
+    "error": "Errore nel caricamento del menu",
+    "noItems": "Nessun elemento disponibile nel menu di oggi",
+    "category": "Categoria"
+  },
+  "order": {
+    "title": "Il Tuo Ordine",
+    "placeOrder": "Conferma Ordine",
+    "updateOrder": "Aggiorna Ordine",
+    "placing": "Invio ordine...",
+    "updating": "Aggiornamento ordine...",
+    "success": "Ordine confermato con successo!",
+    "updateSuccess": "Ordine aggiornato con successo!",
+    "error": "Errore durante l'invio dell'ordine",
+    "noOrder": "Nessun ordine presente",
+    "note": "Note (opzionale)",
+    "notePlaceholder": "Aggiungi eventuali note o richieste speciali...",
+    "selectedItems": "Elementi selezionati",
+    "noItemsSelected": "Nessun elemento selezionato"
+  },
+  "deadline": {
+    "canOrder": "Puoi ordinare fino alle {deadline}",
+    "passed": "Il termine per ordinare è scaduto",
+    "timeRemaining": "Tempo rimanente: {time}"
+  },
+  "errors": {
+    "network": "Errore di connessione. Controlla la tua connessione internet.",
+    "unauthorized": "Sessione scaduta. Effettua nuovamente l'accesso.",
+    "server": "Errore del server. Riprova più tardi.",
+    "unknown": "Si è verificato un errore imprevisto"
+  }
+}
+

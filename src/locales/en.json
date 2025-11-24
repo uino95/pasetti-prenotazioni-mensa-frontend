@@ -1,0 +1,47 @@
+{
+  "app": {
+    "name": "Canteen Reservations"
+  },
+  "auth": {
+    "login": "Login",
+    "username": "Username",
+    "password": "Password",
+    "loggingIn": "Logging in...",
+    "loginError": "Invalid credentials",
+    "logout": "Logout"
+  },
+  "menu": {
+    "title": "Today's Menu",
+    "loading": "Loading menu...",
+    "error": "Error loading menu",
+    "noItems": "No items available in today's menu",
+    "category": "Category"
+  },
+  "order": {
+    "title": "Your Order",
+    "placeOrder": "Confirm Order",
+    "updateOrder": "Update Order",
+    "placing": "Placing order...",
+    "updating": "Updating order...",
+    "success": "Order confirmed successfully!",
+    "updateSuccess": "Order updated successfully!",
+    "error": "Error placing order",
+    "noOrder": "No order found",
+    "note": "Note (optional)",
+    "notePlaceholder": "Add any notes or special requests...",
+    "selectedItems": "Selected items",
+    "noItemsSelected": "No items selected"
+  },
+  "deadline": {
+    "canOrder": "You can order until {deadline}",
+    "passed": "The deadline for ordering has passed",
+    "timeRemaining": "Time remaining: {time}"
+  },
+  "errors": {
+    "network": "Connection error. Check your internet connection.",
+    "unauthorized": "Session expired. Please login again.",
+    "server": "Server error. Please try again later.",
+    "unknown": "An unexpected error occurred"
+  }
+}
+

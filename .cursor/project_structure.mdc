@@ -1,0 +1,170 @@
+---
+alwaysApply: true
+---
+
+# Prenotazioni Mensa Frontend - Project Configuration
+
+## Project Overview
+
+This is a Vue 3 frontend application for a canteen reservation system ("prenotazioni_mensa"). The project uses modern Vue 3 Composition API with TypeScript, Vite, Pinia, and Vue Router.
+
+## Tech Stack
+
+### Core Technologies
+
+- **Vue 3** (v3.5.22) with Composition API
+- **TypeScript** (~5.9.0) with strict typing
+- **Vite** (^7.1.11) as build tool and dev server
+- **Pinia** (^3.0.3) for state management
+- **Vue Router** (^4.6.3) for routing
+- **Bun** as package manager (use `bun` commands, not `npm` or `yarn`)
+
+### Development Tools
+
+- **Vitest** (^3.2.4) for unit testing with jsdom environment
+- **ESLint** (^9.37.0) with Vue and TypeScript plugins (flat config)
+- **Prettier** (3.6.2) for code formatting
+- **vue-tsc** for TypeScript type checking
+- **Vue DevTools** plugin enabled in development
+
+## Code Style & Conventions
+
+### TypeScript
+
+- Use TypeScript for all `.ts` and `.vue` files
+- Use `<script setup lang="ts">` in Vue components
+- Enable strict type checking
+- Use path alias `@` for imports from `src/` directory (e.g., `@/components/MyComponent.vue`)
+
+### Vue Components
+
+- Use Composition API with `<script setup>` syntax
+- Use `<script setup lang="ts">` for TypeScript support
+- Use `<style scoped>` for component-scoped styles
+- Follow Vue 3 best practices and conventions
+
+### Code Formatting (Prettier)
+
+- **No semicolons** (`semi: false`)
+- **Single quotes** (`singleQuote: true`)
+- **Print width**: 100 characters
+- Run `bun format` to format code in `src/` directory
+
+### Linting (ESLint)
+
+- Uses flat config format (`eslint.config.ts`)
+- Vue essential rules enabled
+- TypeScript recommended rules enabled
+- Vitest plugin for test files
+- Prettier integration (formatting handled by Prettier)
+- Run `bun lint` to lint and auto-fix issues
+
+## Project Structure
+
+```
+src/
+  ├── __tests__/          # Test files (Vitest)
+  ├── router/             # Vue Router configuration
+  │   └── index.ts
+  ├── stores/             # Pinia stores
+  │   └── counter.ts
+  ├── App.vue             # Root component
+  └── main.ts             # Application entry point
+```
+
+### File Naming Conventions
+
+- Components: PascalCase (e.g., `MyComponent.vue`)
+- Utilities/helpers: camelCase (e.g., `formatDate.ts`)
+- Stores: camelCase (e.g., `counter.ts`, `userStore.ts`)
+- Tests: `.spec.ts` suffix in `__tests__` folders
+
+## State Management (Pinia)
+
+- Use Pinia stores with Composition API style (`defineStore` with setup function)
+- Store files should be in `src/stores/` directory
+- Use `use` prefix for store names (e.g., `useCounterStore`)
+- Export stores as named exports
+
+Example:
+
+```typescript
+import { ref, computed } from 'vue'
+import { defineStore } from 'pinia'
+
+export const useMyStore = defineStore('myStore', () => {
+  const state = ref(0)
+  const computedValue = computed(() => state.value * 2)
+  function action() {
+    state.value++
+  }
+  return { state, computedValue, action }
+})
+```
+
+## Routing (Vue Router)
+
+- Router configuration in `src/router/index.ts`
+- Use `createWebHistory` for HTML5 history mode
+- Define routes in the routes array
+
+## Testing
+
+- Use **Vitest** for unit tests
+- Test files should be in `__tests__` folders
+- Use `@vue/test-utils` for component testing
+- Test environment: jsdom
+- Run tests with `bun test:unit`
+
+## Build & Development
+
+### Available Scripts
+
+- `bun dev` - Start development server
+- `bun build` - Type-check and build for production
+- `bun preview` - Preview production build
+- `bun test:unit` - Run unit tests
+- `bun lint` - Lint and fix code
+- `bun format` - Format code with Prettier
+- `bun type-check` - Run TypeScript type checking
+
+### Node.js Version
+
+- Required: `^20.19.0 || >=22.12.0`
+
+## Path Aliases
+
+- `@/*` maps to `./src/*`
+- Use `@/` prefix for imports from src directory
+- Example: `import MyComponent from '@/components/MyComponent.vue'`
+
+## TypeScript Configuration
+
+- Multiple tsconfig files for different contexts:
+  - `tsconfig.json` - Root (references other configs)
+  - `tsconfig.app.json` - Application code
+  - `tsconfig.node.json` - Node.js tooling
+  - `tsconfig.vitest.json` - Test files
+
+## Best Practices
+
+1. **Always use TypeScript** - No plain JavaScript files
+2. **Use Composition API** - Prefer `<script setup>` over Options API
+3. **Type everything** - Avoid `any` types, use proper TypeScript types
+4. **Follow Vue 3 patterns** - Use `ref`, `reactive`, `computed`, etc.
+5. **Write tests** - Add tests for new components and features
+6. **Run linting** - Ensure code passes ESLint before committing
+7. **Use path aliases** - Import using `@/` instead of relative paths when possible
+8. **Scoped styles** - Use `<style scoped>` in components to avoid style conflicts
+
+## Environment
+
+- Development server runs on Vite default port (usually 5173)
+- Vue DevTools enabled in development mode
+- Hot module replacement (HMR) enabled
+
+## Additional Notes
+
+- The project uses ESM modules (`"type": "module"` in package.json)
+- All imports should use ES module syntax
+- The project follows Vue 3 official style guide recommendations
