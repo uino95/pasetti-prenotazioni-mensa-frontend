@@ -14,7 +14,7 @@ export default defineConfig({
     vueDevTools(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico'],
+      includeAssets: ['favicon-franco-pasetti-32x32.png'],
       manifest: {
         name: 'Prenotazioni Mensa',
         short_name: 'Mensa',

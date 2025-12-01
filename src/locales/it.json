@@ -45,5 +45,25 @@
     "unauthorized": "Sessione scaduta. Effettua nuovamente l'accesso.",
     "server": "Errore del server. Riprova più tardi.",
     "unknown": "Si è verificato un errore imprevisto"
+  },
+  "install": {
+    "title": "Installa l'app",
+    "description": "Installa Prenotazioni Mensa sul tuo dispositivo per un accesso più rapido e un'esperienza migliore.",
+    "installButton": "Installa",
+    "dismissButton": "Non ora",
+    "close": "Chiudi",
+    "iosTitle": "Come installare su iOS:",
+    "iosStep1": "Tocca il pulsante Condividi",
+    "iosStep2": "Seleziona 'Aggiungi alla schermata Home'",
+    "iosStep3": "Conferma l'installazione",
+    "benefit1": "Accesso rapido dalla schermata home",
+    "benefit2": "Funziona offline",
+    "benefit3": "Esperienza app nativa",
+    "showPrompt": "Mostra il prompt di installazione",
+    "waitingMessage": "L'installazione sarà disponibile a breve. Continua a utilizzare l'app per abilitare l'installazione.",
+    "manualTitle": "Come installare manualmente:",
+    "manualStep1": "Clicca sull'icona del menu (tre puntini) nella barra degli indirizzi",
+    "manualStep2": "Seleziona 'Installa Prenotazioni Mensa' o 'Installa app'",
+    "manualStep3": "Conferma l'installazione nella finestra di dialogo"
   }
 }

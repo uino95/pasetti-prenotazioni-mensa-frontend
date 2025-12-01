@@ -45,5 +45,25 @@
     "unauthorized": "Session expired. Please login again.",
     "server": "Server error. Please try again later.",
     "unknown": "An unexpected error occurred"
+  },
+  "install": {
+    "title": "Install the app",
+    "description": "Install Canteen Reservations on your device for faster access and a better experience.",
+    "installButton": "Install",
+    "dismissButton": "Not now",
+    "close": "Close",
+    "iosTitle": "How to install on iOS:",
+    "iosStep1": "Tap the Share button",
+    "iosStep2": "Select 'Add to Home Screen'",
+    "iosStep3": "Confirm installation",
+    "benefit1": "Quick access from home screen",
+    "benefit2": "Works offline",
+    "benefit3": "Native app experience",
+    "showPrompt": "Show install prompt",
+    "waitingMessage": "Installation will be available soon. Keep using the app to enable installation.",
+    "manualTitle": "How to install manually:",
+    "manualStep1": "Click the menu icon (three dots) in the address bar",
+    "manualStep2": "Select 'Install Prenotazioni Mensa' or 'Install app'",
+    "manualStep3": "Confirm installation in the dialog"
   }
 }
