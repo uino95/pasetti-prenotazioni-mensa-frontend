@@ -1,10 +1,15 @@
 import apiClient, { type ApiResponse } from './client'
 import qs from 'qs'
 
+export interface Category {
+  documentId: string
+  name: string
+  order: number
+}
 export interface MenuItem {
   documentId: string
   name: string
-  category: string
+  category: Category
 }
 
 export interface MenuResponse {
@@ -18,7 +23,11 @@ export async function getMenuOfDay(): Promise<MenuResponse> {
   const endOfDay = new Date(today.setHours(23, 59, 59, 999))
   const query = qs.stringify({
     filters: { day: { $gte: startOfDay.toISOString(), $lte: endOfDay.toISOString() } },
-    populate: ['items'],
+    populate: {
+      items: {
+        populate: ['category'],
+      },
+    },
   })
   const response = await apiClient.get<ApiResponse<MenuResponse[]>>(`/api/menus/?${query}`)
   if (!response.data.data[0]) {

@@ -55,7 +55,7 @@ export async function placeOrder(request: PlaceOrderRequest): Promise<Order> {
   const response = await apiClient.post<Order>('/api/orders', {
     data: {
       items: {
-        connect: request.items,
+        set: request.items,
       },
       note: request.note,
       user: request.userId,
@@ -68,7 +68,7 @@ export async function updateOrder(orderId: string, request: UpdateOrderRequest):
   const response = await apiClient.put<Order>(`/api/orders/${orderId}`, {
     data: {
       items: {
-        connect: request.items,
+        set: request.items,
       },
       note: request.note,
     },

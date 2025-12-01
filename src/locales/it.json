@@ -15,12 +15,13 @@
     "loading": "Caricamento menu...",
     "error": "Errore nel caricamento del menu",
     "noItems": "Nessun elemento disponibile nel menu di oggi",
-    "category": "Categoria"
+    "category": "Categoria",
+    "itemName": "Nome"
   },
   "order": {
     "title": "Il Tuo Ordine",
     "placeOrder": "Conferma Ordine",
-    "updateOrder": "Aggiorna Ordine",
+    "editOrder": "Modifica Ordine",
     "placing": "Invio ordine...",
     "updating": "Aggiornamento ordine...",
     "success": "Ordine confermato con successo!",
@@ -35,7 +36,9 @@
   "deadline": {
     "canOrder": "Puoi ordinare fino alle {deadline}",
     "passed": "Il termine per ordinare è scaduto",
-    "timeRemaining": "Tempo rimanente: {time}"
+    "timeRemaining": "Tempo rimanente: {time}",
+    "orderPlaced": "Il termine per ordinare è scaduto",
+    "viewOrder": "Vedi Ordine"
   },
   "errors": {
     "network": "Errore di connessione. Controlla la tua connessione internet.",
@@ -44,4 +47,3 @@
     "unknown": "Si è verificato un errore imprevisto"
   }
 }
-

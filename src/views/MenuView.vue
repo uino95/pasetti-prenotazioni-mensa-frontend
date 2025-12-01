@@ -1,32 +1,47 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import MenuCard from '@/components/MenuCard.vue'
 import DeadlineBanner from '@/components/DeadlineBanner.vue'
 import { useMenu } from '@/composables/useMenu'
 import { useOrder } from '@/composables/useOrder'
 import type { MenuItem } from '@/api/menu'
+import router from '@/router'
 
 const { t } = useI18n()
-const router = useRouter()
 const { items, deadline, canOrder, loading, error, fetchMenu } = useMenu()
-const { currentOrder, fetchCurrentOrder, canEdit } = useOrder(() => canOrder.value)
+const {
+  currentOrder,
+  loading: orderLoading,
+  error: orderError,
+  fetchCurrentOrder,
+  placeOrder,
+  updateOrder,
+} = useOrder(() => canOrder.value)
 
 const selectedItems = ref<MenuItem[]>([])
+const note = ref<string>('')
 
 const selectedItemIds = computed(() => selectedItems.value.map((item) => item.documentId))
 
 const itemsByCategory = computed(() => {
   const grouped = new Map<string, MenuItem[]>()
   items.value.forEach((item) => {
-    const category = item.category || 'Altro'
-    if (!grouped.has(category)) {
-      grouped.set(category, [])
+    const categoryName = item.category?.name || 'Altro'
+    if (!grouped.has(categoryName)) {
+      grouped.set(categoryName, [])
     }
-    grouped.get(category)!.push(item)
+    grouped.get(categoryName)!.push(item)
   })
-  return Array.from(grouped.entries()).map(([category, items]) => ({
+  // Sort the groups by the order of the categories
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const sortedGrouped = Array.from(grouped.entries()).sort(([_a, aItems], [_b, bItems]) => {
+    // Try to get the category order for each group (first item's category order)
+    const aOrder = aItems[0]?.category?.order ?? 9999
+    const bOrder = bItems[0]?.category?.order ?? 9999
+    return aOrder - bOrder
+  })
+  return sortedGrouped.map(([category, items]) => ({
     category,
     items,
   }))
@@ -38,24 +53,36 @@ const toggleItem = (itemId: string) => {
   const item = items.value.find((i) => i.documentId === itemId)
   if (!item) return
 
-  const index = selectedItems.value.findIndex((i) => i.documentId === itemId)
-  if (index >= 0) {
-    selectedItems.value.splice(index, 1)
+  const categoryId = item.category?.documentId || null
+  const isAlreadySelected = selectedItems.value.some((i) => i.documentId === itemId)
+
+  if (isAlreadySelected) {
+    // If already selected, deselect it
+    selectedItems.value = selectedItems.value.filter((i) => i.documentId !== itemId)
   } else {
+    // Remove any previously selected item from the same category
+    selectedItems.value = selectedItems.value.filter(
+      (selectedItem) => (selectedItem.category?.documentId || null) !== categoryId,
+    )
+    // Add the newly selected item
     selectedItems.value.push(item)
   }
 }
 
-const handlePlaceOrder = () => {
+const handlePlaceOrder = async () => {
   if (selectedItems.value.length === 0) return
-  router.push({
-    name: 'order',
-    query: { items: selectedItemIds.value.join(',') },
-  })
-}
 
-const handleViewOrder = () => {
-  router.push({ name: 'order' })
+  try {
+    if (currentOrder.value) {
+      await updateOrder(currentOrder.value.documentId, selectedItemIds.value, note.value)
+    } else {
+      await placeOrder(selectedItemIds.value, note.value)
+    }
+    router.push({ name: 'order' })
+  } catch (err) {
+    console.error(err)
+    // Error is handled by the store/composable
+  }
 }
 
 onMounted(async () => {
@@ -64,30 +91,20 @@ onMounted(async () => {
   if (currentOrder.value) {
     const orderItemIds = currentOrder.value.items.map((item) => item.documentId)
     selectedItems.value = items.value.filter((item) => orderItemIds.includes(item.documentId))
+    note.value = currentOrder.value.note || ''
   }
 })
 </script>
 
 <template>
   <main class="max-w-4xl mx-auto px-4 py-6">
-    <DeadlineBanner v-if="deadline" :deadline="deadline" :can-order="canOrder" />
-
-    <div
-      v-if="currentOrder && canEdit"
-      class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg"
-    >
-      <div class="flex items-center justify-between">
-        <p class="text-blue-800">
-          {{ t('order.title') }}: {{ currentOrder.items.length }} {{ t('order.selectedItems') }}
-        </p>
-        <button
-          @click="handleViewOrder"
-          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
-        >
-          {{ t('order.updateOrder') }}
-        </button>
-      </div>
-    </div>
+    <DeadlineBanner
+      v-if="deadline"
+      :deadline="deadline"
+      :can-order="canOrder"
+      :has-order="!!currentOrder"
+      :show-order-link="true"
+    />
 
     <div v-if="loading" class="text-center py-8">
       <p class="text-gray-600">{{ t('menu.loading') }}</p>
@@ -95,6 +112,10 @@ onMounted(async () => {
 
     <div v-else-if="error" class="p-4 bg-red-50 border border-red-200 rounded-lg">
       <p class="text-red-800">{{ error }}</p>
+    </div>
+
+    <div v-if="orderError" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+      <p class="text-red-800">{{ orderError }}</p>
     </div>
 
     <div v-else-if="items.length === 0" class="text-center py-8">
@@ -106,32 +127,53 @@ onMounted(async () => {
         {{ t('menu.title') }}
       </h2>
 
-      <div v-for="categoryGroup in itemsByCategory" :key="categoryGroup.category" class="space-y-4">
-        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
+      <div v-for="categoryGroup in itemsByCategory" :key="categoryGroup.category" class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2 px-2">
           {{ categoryGroup.category }}
         </h3>
-        <div class="grid gap-4 md:grid-cols-2">
-          <MenuCard
-            v-for="item in categoryGroup.items"
-            :key="item.documentId"
-            :item="item"
-            :selected="selectedItems.some((i) => i.documentId === item.documentId)"
-            @toggle="toggleItem"
-          />
+        <div class="overflow-x-auto">
+          <table
+            class="w-full border-collapse bg-white rounded-lg shadow-sm border border-gray-200"
+          >
+            <tbody>
+              <MenuCard
+                v-for="item in categoryGroup.items"
+                :key="item.documentId"
+                :item="item"
+                :category="categoryGroup.category"
+                :selected="selectedItems.some((i) => i.documentId === item.documentId)"
+                :disabled="!canOrder"
+                @toggle="toggleItem"
+              />
+            </tbody>
+          </table>
         </div>
       </div>
 
       <div
         v-if="canOrder && selectedItems.length > 0"
-        class="sticky bottom-4 bg-white p-4 rounded-lg shadow-lg border border-gray-200"
+        class="sticky bottom-4 bg-white p-4 rounded-lg shadow-lg border border-gray-200 space-y-4"
       >
+        <div>
+          <label for="note" class="block text-sm font-medium text-gray-700 mb-1">
+            {{ t('order.note') }}
+          </label>
+          <textarea
+            id="note"
+            v-model="note"
+            :placeholder="t('order.notePlaceholder')"
+            rows="3"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
         <div class="flex items-center justify-between">
           <p class="text-gray-700">{{ selectedItems.length }} {{ t('order.selectedItems') }}</p>
           <button
             @click="handlePlaceOrder"
-            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            :disabled="orderLoading"
+            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {{ t('order.placeOrder') }}
+            {{ orderLoading ? t('order.placing') : t('order.placeOrder') }}
           </button>
         </div>
       </div>

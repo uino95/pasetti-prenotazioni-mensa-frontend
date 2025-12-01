@@ -1,10 +1,11 @@
 import type { RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { getCurrentOrder } from '@/api/orders'
 
 export function authGuard(
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,
-  next: NavigationGuardNext
+  next: NavigationGuardNext,
 ) {
   const authStore = useAuthStore()
   if (!authStore.isAuthenticated) {
@@ -17,13 +18,37 @@ export function authGuard(
 export function loginGuard(
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,
-  next: NavigationGuardNext
+  next: NavigationGuardNext,
 ) {
   const authStore = useAuthStore()
   if (authStore.isAuthenticated) {
-    next({ name: 'menu' })
+    next({ name: 'order' })
   } else {
     next()
   }
 }
 
+export async function orderGuard(
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext,
+) {
+  const authStore = useAuthStore()
+  if (!authStore.user?.documentId) {
+    next({ name: 'menu' })
+    return
+  }
+
+  try {
+    const order = await getCurrentOrder(authStore.user.documentId)
+    if (!order) {
+      next({ name: 'menu' })
+    } else {
+      next()
+    }
+  } catch (error: unknown) {
+    console.error(error)
+    // If there's an error fetching the order, redirect to menu
+    next({ name: 'menu' })
+  }
+}

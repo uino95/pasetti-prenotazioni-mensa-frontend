@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { authGuard, loginGuard } from './guards'
+import { authGuard, loginGuard, orderGuard } from './guards'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,11 +20,11 @@ const router = createRouter({
       path: '/order',
       name: 'order',
       component: () => import('@/views/OrderView.vue'),
-      beforeEnter: authGuard,
+      beforeEnter: [authGuard, orderGuard],
     },
     {
       path: '/',
-      redirect: '/menu',
+      redirect: '/order',
     },
   ],
 })

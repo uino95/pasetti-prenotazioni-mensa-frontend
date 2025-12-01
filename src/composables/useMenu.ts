@@ -26,8 +26,6 @@ export function useMenu() {
       const response = await getMenuOfDay()
       items.value = response.items
       deadline.value = response.deadline
-      console.log(items.value)
-      console.log(deadline.value)
     } catch (err: unknown) {
       if (err instanceof AxiosError && err.response?.status === 404) {
         error.value = 'No menu found for today'

@@ -40,4 +40,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  server: {
+    port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
+  },
 })

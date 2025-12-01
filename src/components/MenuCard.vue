@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 import type { MenuItem } from '@/api/menu'
-
-const { t } = useI18n()
 
 const props = defineProps<{
   item: MenuItem
   selected: boolean
+  disabled?: boolean
+  category: string
 }>()
 
 const emit = defineEmits<{
@@ -14,34 +14,39 @@ const emit = defineEmits<{
 }>()
 
 const handleToggle = () => {
+  if (props.disabled) return
   emit('toggle', props.item.documentId)
 }
+
+// Create a unique radio group name based on category
+const radioGroupName = computed(() => `category-${props.category}`)
 </script>
 
 <template>
-  <div
-    class="border rounded-lg p-4 cursor-pointer transition-all"
+  <tr
+    class="border-b border-gray-200 transition-colors cursor-pointer"
     :class="
       selected
-        ? 'border-blue-500 bg-blue-50 shadow-md'
-        : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+        ? 'bg-blue-50 hover:bg-blue-100'
+        : disabled
+          ? 'bg-gray-50 opacity-60 cursor-not-allowed'
+          : 'hover:bg-gray-50'
     "
     @click="handleToggle"
   >
-    <div class="flex items-start justify-between">
-      <div class="flex-1">
-        <h3 class="font-semibold text-gray-900 mb-1">{{ item.name }}</h3>
-        <p class="text-sm text-gray-600">{{ t('menu.category') }}: {{ item.category }}</p>
-      </div>
+    <td class="px-4 py-2 w-12">
       <input
-        type="checkbox"
+        type="radio"
+        :name="radioGroupName"
         :checked="selected"
+        :disabled="disabled"
         @change="handleToggle"
         @click.stop
-        class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+        class="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
       />
-    </div>
-  </div>
+    </td>
+    <td class="px-4 py-2 font-medium text-gray-900">{{ item.name }}</td>
+  </tr>
 </template>
 
 <style scoped></style>

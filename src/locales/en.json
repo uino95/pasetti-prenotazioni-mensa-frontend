@@ -15,12 +15,13 @@
     "loading": "Loading menu...",
     "error": "Error loading menu",
     "noItems": "No items available in today's menu",
-    "category": "Category"
+    "category": "Category",
+    "itemName": "Name"
   },
   "order": {
     "title": "Your Order",
     "placeOrder": "Confirm Order",
-    "updateOrder": "Update Order",
+    "editOrder": "Edit Order",
     "placing": "Placing order...",
     "updating": "Updating order...",
     "success": "Order confirmed successfully!",
@@ -35,7 +36,9 @@
   "deadline": {
     "canOrder": "You can order until {deadline}",
     "passed": "The deadline for ordering has passed",
-    "timeRemaining": "Time remaining: {time}"
+    "timeRemaining": "Time remaining: {time}",
+    "orderPlaced": "The deadline for ordering has passed",
+    "viewOrder": "View Order"
   },
   "errors": {
     "network": "Connection error. Check your internet connection.",
@@ -44,4 +47,3 @@
     "unknown": "An unexpected error occurred"
   }
 }
-
