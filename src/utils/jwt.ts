@@ -21,6 +21,9 @@ export function decodeJwt(token: string): JwtPayload | null {
     }
 
     const payload = parts[1]
+    if (!payload) {
+      return null
+    }
     const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
     return JSON.parse(decoded) as JwtPayload
   } catch (error) {
@@ -69,4 +72,3 @@ export function getTokenExpiration(token: string | null): number | null {
 
   return payload.exp * 1000
 }
-
