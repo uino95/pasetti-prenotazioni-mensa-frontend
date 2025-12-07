@@ -4,8 +4,6 @@
 Mancano
 
 - ci sono un paio di problem i di flickering -> vedo cose che non dovrei vedere subito
-- installa app -> va bene come fatto ora, magari aspettiamo a mostrare il messaggio dopo il login che così l'evento è stato triggerato di sicuro
-- JWT token non deve scadere mai
 - migliorare logo e manifest di modo che si vedando bene
 - guardare cosa succede su safari
 
