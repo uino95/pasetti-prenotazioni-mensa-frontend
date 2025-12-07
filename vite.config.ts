@@ -19,7 +19,8 @@ export default defineConfig({
         name: 'Prenotazioni Mensa',
         short_name: 'Mensa',
         description: 'App per visualizzare il menu e ordinare il pranzo',
-        theme_color: '#ffffff',
+        theme_color: '#0b102a',
+        background_color: '#0b102a',
         icons: [
           {
             src: 'pwa-192x192.png',
