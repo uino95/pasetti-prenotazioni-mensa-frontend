@@ -1,8 +1,14 @@
+import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
-import { toRef } from 'vue'
+import router from '@/router'
 
+/**
+ * Composable that provides reactive access to the auth store.
+ * Handles storeToRefs internally to maintain reactivity when destructuring.
+ */
 export function useAuth() {
   const authStore = useAuthStore()
+  const { token, user, loading, error, isAuthenticated } = storeToRefs(authStore)
 
   const login = async (identifier: string, password: string) => {
     await authStore.login(identifier, password)
@@ -10,13 +16,17 @@ export function useAuth() {
 
   const logout = async () => {
     await authStore.logout()
+    await router.push('/login')
   }
 
   return {
-    user: authStore.user,
-    isAuthenticated: authStore.isAuthenticated,
-    loading: authStore.loading,
-    error: toRef(authStore.error),
+    // Reactive state
+    token,
+    user,
+    loading,
+    error,
+    isAuthenticated,
+    // Methods
     login,
     logout,
   }

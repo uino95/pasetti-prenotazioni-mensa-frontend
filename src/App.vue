@@ -12,7 +12,7 @@ const { isAuthenticated, logout } = useAuth()
 const { isInstallable, isInstalled, resetDismiss } = usePWAInstall()
 
 const showHeader = computed(() => {
-  return isAuthenticated && route.name !== 'login'
+  return isAuthenticated.value && route.name !== 'login'
 })
 
 // Show install button if app is installable but was dismissed or not installed

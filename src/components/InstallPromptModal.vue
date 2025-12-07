@@ -2,14 +2,18 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePWAInstall } from '@/composables/usePWAInstall'
+import { useAuth } from '@/composables/useAuth'
 
 const { t } = useI18n()
 const { install, dismiss, isInstalled, isInstallable, installPrompt, isDismissed } = usePWAInstall()
+const { isAuthenticated } = useAuth()
 
-// Show modal if not installed and not dismissed
-// The modal will appear immediately when the page loads (if not dismissed)
-// and can be shown again via the header button (which resets dismissal)
+// Show modal only if user is authenticated, not installed, and not dismissed
+// This gives the browser more time to detect the install prompt after login
 const showModal = computed(() => {
+  if (!isAuthenticated.value) {
+    return false
+  }
   if (isInstalled.value) {
     return false
   }

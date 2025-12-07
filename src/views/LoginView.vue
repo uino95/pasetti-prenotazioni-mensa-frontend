@@ -9,18 +9,22 @@ const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const { login, error: authError } = useAuth()
+const isLoading = ref(false)
 
 const error = ref<string | null>(null)
 
 const handleLogin = async (identifier: string, password: string) => {
   error.value = null
   try {
+    isLoading.value = true
     await login(identifier, password)
     const redirect = (route.query.redirect as string) || '/menu'
     router.push(redirect)
   } catch (err: unknown) {
     console.error(err)
-    error.value = authError?.value || t('auth.loginError')
+    error.value = authError.value || t('auth.loginError')
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -31,7 +35,7 @@ const handleLogin = async (identifier: string, password: string) => {
       <h1 class="text-2xl font-bold text-center text-gray-900 mb-6">
         {{ t('app.name') }}
       </h1>
-      <LoginForm @submit="handleLogin" />
+      <LoginForm @submit="handleLogin" :is-loading="isLoading" />
       <div v-if="error" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
         <p class="text-sm text-red-800">{{ error }}</p>
       </div>

@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, toRefs } from 'vue'
 import { defineStore } from 'pinia'
 import { login as apiLogin, type LoginResponse } from '@/api/auth'
 import { AxiosError } from 'axios'
@@ -11,7 +11,9 @@ export const useAuthStore = defineStore(
     const loading = ref(false)
     const error = ref<string | null>(null)
 
-    const isAuthenticated = computed(() => !!token.value)
+    const isAuthenticated = computed(() => {
+      return !!token.value
+    })
 
     async function login(identifier: string, password: string): Promise<void> {
       loading.value = true
@@ -38,10 +40,12 @@ export const useAuthStore = defineStore(
     }
 
     return {
-      token,
-      user,
-      loading,
-      error,
+      ...toRefs({
+        token,
+        user,
+        loading,
+        error,
+      }),
       isAuthenticated,
       login,
       logout,
