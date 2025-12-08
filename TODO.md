@@ -1,5 +1,6 @@
 5 ore domenica 23
 5 ore domenica 30
+5 ore domenica 8
 
 Mancano
 
@@ -13,4 +14,4 @@ Mancano
 - export per singolo utente con il numero di ordini fatti per il mese
 - capire se si pò rimuovere email utente come obbligatorio
 
-Stima altre 15 ore
+Stima altre 10 ore
