@@ -3,6 +3,7 @@ import qs from 'qs'
 
 export interface User {
   id: number
+  documentId: string
   username: string
   email: string
 }
