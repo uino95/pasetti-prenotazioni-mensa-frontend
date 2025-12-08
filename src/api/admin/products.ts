@@ -85,3 +85,8 @@ export async function updateProduct(
 export async function deleteProduct(productId: string): Promise<void> {
   await apiClient.delete(`/api/items/${productId}`)
 }
+
+export async function getCategories(): Promise<Category[]> {
+  const response = await apiClient.get<ApiResponse<Category[]>>(`/api/categories`)
+  return response.data.data.sort((a, b) => a.order - b.order)
+}

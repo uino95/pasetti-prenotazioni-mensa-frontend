@@ -10,8 +10,9 @@ import {
   type CreateProductRequest,
   type UpdateProductRequest,
   type ProductFilters,
+  getCategories,
 } from '@/api/admin/products'
-import { getMenuOfDay, type Category } from '@/api/menu'
+import { type Category } from '@/api/menu'
 
 export function useAdminProducts() {
   const products = ref<Product[]>([])
@@ -55,19 +56,12 @@ export function useAdminProducts() {
 
   const fetchCategories = async () => {
     try {
-      // Fetch categories by getting a menu and extracting categories
-      const menu = await getMenuOfDay()
-      const categoryMap = new Map<string, Category>()
-      menu.items.forEach((item) => {
-        if (item.category) {
-          categoryMap.set(item.category.documentId, item.category)
-        }
-      })
-      categories.value = Array.from(categoryMap.values()).sort((a, b) => a.order - b.order)
+      categories.value = await getCategories()
     } catch (err: unknown) {
-      console.error('Failed to fetch categories:', err)
-      // If menu fetch fails, try to get categories directly
-      // This is a fallback - you may need to adjust based on your API
+      error.value = err instanceof Error ? err.message : 'Failed to fetch categories'
+      throw err
+    } finally {
+      loading.value = false
     }
   }
 
