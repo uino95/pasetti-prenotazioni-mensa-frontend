@@ -72,6 +72,7 @@ export async function createUser(data: CreateUserRequest): Promise<User> {
   const response = await apiClient.post<User>('/api/users', {
     ...data,
     role: 1,
+    confirmed: true,
   })
   return response.data
 }
