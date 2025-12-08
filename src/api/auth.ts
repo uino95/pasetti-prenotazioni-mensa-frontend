@@ -1,10 +1,26 @@
 import axios from 'axios'
 import apiClient from './client'
 import { env } from '@/utils/env'
+import type { User } from './admin/users'
+import qs from 'qs'
 
 export interface LoginCredentials {
   identifier: string
   password: string
+}
+
+interface Role {
+  documentId: string
+  description: string
+  name: string
+  type: string
+  createdAt: string
+  publishedAt: string
+  updatedAt: string
+}
+
+export interface UserMeResponse extends User {
+  role: Role
 }
 
 export interface LoginResponse {
@@ -43,5 +59,15 @@ export async function refreshToken(refreshToken: string): Promise<RefreshTokenRe
   const response = await refreshClient.post<RefreshTokenResponse>('/api/auth/local/refresh', {
     refreshToken,
   })
+  return response.data
+}
+
+export async function getUser(): Promise<UserMeResponse> {
+  const query = qs.stringify({
+    populate: {
+      role: true,
+    },
+  })
+  const response = await apiClient.get<UserMeResponse>(`/api/users/me?${query}`)
   return response.data
 }

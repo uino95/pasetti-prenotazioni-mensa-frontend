@@ -14,6 +14,11 @@ export interface ApiResponse<T> {
   }
 }
 
+export interface Pagination {
+  limit?: number
+  start?: number
+}
+
 const apiClient: AxiosInstance = axios.create({
   baseURL: env.VITE_API_BASE_URL,
   headers: {

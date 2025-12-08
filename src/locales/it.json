@@ -65,5 +65,69 @@
     "manualStep1": "Clicca sull'icona del menu (tre puntini) nella barra degli indirizzi",
     "manualStep2": "Seleziona 'Installa Prenotazioni Mensa' o 'Installa app'",
     "manualStep3": "Conferma l'installazione nella finestra di dialogo"
+  },
+  "admin": {
+    "title": "Amministrazione",
+    "logout": "Area Utente",
+    "loading": "Caricamento...",
+    "search": "Cerca",
+    "actions": "Azioni",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "create": "Crea",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "confirm": "Conferma",
+    "remove": "Rimuovi",
+    "users": {
+      "title": "Gestione Utenti",
+      "createUser": "Crea Utente",
+      "editUser": "Modifica Utente",
+      "deleteUser": "Elimina Utente",
+      "username": "Nome utente",
+      "email": "Email",
+      "name": "Nome",
+      "password": "Password",
+      "role": "Ruolo",
+      "noRole": "Nessun ruolo",
+      "ordersCount": "Ordini nel mese",
+      "month": "Mese",
+      "year": "Anno",
+      "refreshCounts": "Aggiorna conteggi",
+      "searchPlaceholder": "Cerca per username, email o nome...",
+      "noUsers": "Nessun utente trovato",
+      "passwordRequired": "La password è obbligatoria",
+      "deleteConfirm": "Sei sicuro di voler eliminare l'utente {username}?"
+    },
+    "menus": {
+      "title": "Gestione Menu",
+      "selectDate": "Seleziona data",
+      "noMenuForDate": "Nessun menu disponibile per questa data",
+      "createMenu": "Crea Menu",
+      "deleteMenu": "Elimina Menu",
+      "deleteConfirm": "Sei sicuro di voler eliminare questo menu?",
+      "deadline": "Scadenza ordini",
+      "currentItems": "Elementi nel menu",
+      "noItems": "Nessun elemento nel menu",
+      "addProducts": "Aggiungi prodotti",
+      "searchProducts": "Cerca prodotti...",
+      "noAvailableProducts": "Nessun prodotto disponibile da aggiungere"
+    },
+    "products": {
+      "title": "Gestione Prodotti",
+      "createProduct": "Crea Prodotto",
+      "editProduct": "Modifica Prodotto",
+      "deleteProduct": "Elimina Prodotto",
+      "name": "Nome",
+      "category": "Categoria",
+      "selectCategory": "Seleziona categoria",
+      "categoryRequired": "La categoria è obbligatoria",
+      "searchPlaceholder": "Cerca prodotti...",
+      "noProducts": "Nessun prodotto trovato",
+      "deleteConfirm": "Sei sicuro di voler eliminare il prodotto {name}?"
+    }
+  },
+  "utils": {
+    "loadMore": "Carica altro"
   }
 }

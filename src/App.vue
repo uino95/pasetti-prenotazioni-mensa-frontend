@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/composables/useAuth'
 import { usePWAInstall } from '@/composables/usePWAInstall'
+import { isAdmin } from '@/utils/role'
 import InstallPromptModal from '@/components/InstallPromptModal.vue'
 
 const { t } = useI18n()
 const route = useRoute()
+const router = useRouter()
 const { isAuthenticated, logout } = useAuth()
 const { isInstallable, isInstalled, resetDismiss } = usePWAInstall()
+const userIsAdmin = computed(() => isAdmin())
+
+const isAdminRoute = computed(() => {
+  return route.path.startsWith('/admin')
+})
 
 const showHeader = computed(() => {
   return isAuthenticated.value && route.name !== 'login'
@@ -34,9 +41,19 @@ const handleInstallClick = () => {
 <template>
   <div class="min-h-screen bg-gray-50">
     <header v-if="showHeader" class="bg-white shadow-sm">
-      <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div
+        :class="isAdminRoute ? '' : 'max-w-4xl'"
+        class="w-full mx-auto px-4 py-4 flex justify-between items-center"
+      >
         <h1 class="text-xl font-bold text-gray-900">{{ t('app.name') }}</h1>
         <div class="flex items-center gap-4">
+          <button
+            v-if="userIsAdmin"
+            @click="router.push(isAdminRoute ? '/' : '/admin')"
+            class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            {{ isAdminRoute ? t('admin.logout') : t('admin.title') }}
+          </button>
           <button
             v-if="showInstallButton"
             @click="handleInstallClick"

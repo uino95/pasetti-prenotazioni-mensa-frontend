@@ -1,6 +1,7 @@
 import type { RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getCurrentOrder } from '@/api/orders'
+import { isAdmin } from '@/utils/role'
 
 export function authGuard(
   to: RouteLocationNormalized,
@@ -50,5 +51,21 @@ export async function orderGuard(
     console.error(error)
     // If there's an error fetching the order, redirect to menu
     next({ name: 'menu' })
+  }
+}
+
+export function adminGuard(
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext,
+) {
+  const authStore = useAuthStore()
+  if (!authStore.isAuthenticated) {
+    next({ name: 'login', query: { redirect: to.fullPath } })
+  } else if (!isAdmin()) {
+    // Redirect non-admin users to order page
+    next({ name: 'order' })
+  } else {
+    next()
   }
 }

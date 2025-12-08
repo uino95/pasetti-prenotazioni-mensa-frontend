@@ -19,10 +19,14 @@ export interface MenuResponse {
 
 export async function getMenuOfDay(): Promise<MenuResponse> {
   const today = new Date()
-  const startOfDay = new Date(today.setHours(0, 0, 0, 0))
-  const endOfDay = new Date(today.setHours(23, 59, 59, 999))
+  // Format date to YYYY-MM-DD for exact date match
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+  const dateString = `${year}-${month}-${day}`
+
   const query = qs.stringify({
-    filters: { day: { $gte: startOfDay.toISOString(), $lte: endOfDay.toISOString() } },
+    filters: { day: { $eq: dateString } },
     populate: {
       items: {
         populate: ['category'],

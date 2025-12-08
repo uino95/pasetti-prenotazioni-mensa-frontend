@@ -34,18 +34,20 @@ const radioGroupName = computed(() => `category-${props.category}`)
     "
     @click="handleToggle"
   >
-    <td class="px-4 py-2 w-12">
-      <input
-        type="radio"
-        :name="radioGroupName"
-        :checked="selected"
-        :disabled="disabled"
-        @change="handleToggle"
-        @click.stop
-        class="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
-      />
+    <td class="px-4 py-2 w-12 align-middle">
+      <div class="flex items-center justify-center">
+        <input
+          type="radio"
+          :name="radioGroupName"
+          :checked="selected"
+          :disabled="disabled"
+          @change="handleToggle"
+          @click.stop
+          class="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
+        />
+      </div>
     </td>
-    <td class="px-4 py-2 font-medium text-gray-900">{{ item.name }}</td>
+    <td class="px-4 py-2 font-medium text-gray-900 align-middle">{{ item.name }}</td>
   </tr>
 </template>
 

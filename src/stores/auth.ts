@@ -1,6 +1,11 @@
 import { ref, computed, toRefs } from 'vue'
 import { defineStore } from 'pinia'
-import { login as apiLogin, refreshToken as apiRefreshToken, type LoginResponse } from '@/api/auth'
+import {
+  login as apiLogin,
+  refreshToken as apiRefreshToken,
+  getUser,
+  type UserMeResponse,
+} from '@/api/auth'
 import { AxiosError } from 'axios'
 import { isTokenExpired } from '@/utils/jwt'
 
@@ -9,7 +14,7 @@ export const useAuthStore = defineStore(
   () => {
     const token = ref<string | null>(null)
     const refreshTokenValue = ref<string | null>(null)
-    const user = ref<LoginResponse['user'] | null>(null)
+    const user = ref<UserMeResponse | null>(null)
     const loading = ref(false)
     const error = ref<string | null>(null)
     const isRefreshing = ref(false)
@@ -26,7 +31,7 @@ export const useAuthStore = defineStore(
         const response = await apiLogin({ identifier, password })
         token.value = response.jwt
         refreshTokenValue.value = response.refreshToken || null
-        user.value = response.user
+        user.value = await getUser()
       } catch (err: unknown) {
         if (err instanceof AxiosError && err.response?.status === 400) {
           error.value = err.response?.data?.error?.message || 'Login failed'

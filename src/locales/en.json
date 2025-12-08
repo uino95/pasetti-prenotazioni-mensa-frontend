@@ -65,5 +65,69 @@
     "manualStep1": "Click the menu icon (three dots) in the address bar",
     "manualStep2": "Select 'Install Prenotazioni Mensa' or 'Install app'",
     "manualStep3": "Confirm installation in the dialog"
+  },
+  "admin": {
+    "title": "Administration",
+    "logout": "User Area",
+    "loading": "Loading...",
+    "search": "Search",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "create": "Create",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "remove": "Remove",
+    "users": {
+      "title": "User Management",
+      "createUser": "Create User",
+      "editUser": "Edit User",
+      "deleteUser": "Delete User",
+      "username": "Username",
+      "email": "Email",
+      "name": "Name",
+      "password": "Password",
+      "role": "Role",
+      "noRole": "No role",
+      "ordersCount": "Orders this month",
+      "month": "Month",
+      "year": "Year",
+      "refreshCounts": "Refresh counts",
+      "searchPlaceholder": "Search by username, email or name...",
+      "noUsers": "No users found",
+      "passwordRequired": "Password is required",
+      "deleteConfirm": "Are you sure you want to delete user {username}?"
+    },
+    "menus": {
+      "title": "Menu Management",
+      "selectDate": "Select date",
+      "noMenuForDate": "No menu available for this date",
+      "createMenu": "Create Menu",
+      "deleteMenu": "Delete Menu",
+      "deleteConfirm": "Are you sure you want to delete this menu?",
+      "deadline": "Order deadline",
+      "currentItems": "Items in menu",
+      "noItems": "No items in menu",
+      "addProducts": "Add products",
+      "searchProducts": "Search products...",
+      "noAvailableProducts": "No available products to add"
+    },
+    "products": {
+      "title": "Product Management",
+      "createProduct": "Create Product",
+      "editProduct": "Edit Product",
+      "deleteProduct": "Delete Product",
+      "name": "Name",
+      "category": "Category",
+      "selectCategory": "Select category",
+      "categoryRequired": "Category is required",
+      "searchPlaceholder": "Search products...",
+      "noProducts": "No products found",
+      "deleteConfirm": "Are you sure you want to delete product {name}?"
+    }
+  },
+  "utils": {
+    "loadMore": "Load more"
   }
 }
