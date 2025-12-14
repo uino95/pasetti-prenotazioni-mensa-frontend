@@ -12,7 +12,7 @@ export function usePWAInstall() {
   const installPrompt = ref<BeforeInstallPromptEvent | null>(null)
   const isInstallable = ref(false)
   const isInstalled = ref(false)
-  const isDismissed = ref(false)
+  const isDismissed = ref(true)
 
   const checkIfInstalled = () => {
     // Check if app is running in standalone mode (installed)
@@ -214,12 +214,6 @@ export function usePWAInstall() {
 
   onMounted(async () => {
     console.log('[PWA Install] Initializing PWA install detection...')
-    // Check if user previously dismissed
-    if (checkDismissed()) {
-      isDismissed.value = true
-      console.log('[PWA Install] Prompt was dismissed, not showing')
-      return
-    }
     // Check browser support
     checkBrowserSupport()
 
@@ -232,6 +226,15 @@ export function usePWAInstall() {
     // Check if already installed
     if (checkIfInstalled()) {
       return
+    }
+
+    // Check if user previously dismissed
+    if (checkDismissed()) {
+      isDismissed.value = true
+      console.log('[PWA Install] Prompt was dismissed, not showing')
+      return
+    } else {
+      isDismissed.value = false
     }
 
     // Listen for the beforeinstallprompt event
