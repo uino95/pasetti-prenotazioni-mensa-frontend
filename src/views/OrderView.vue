@@ -6,6 +6,7 @@ import DeadlineBanner from '@/components/DeadlineBanner.vue'
 import { useMenu } from '@/composables/useMenu'
 import { useOrder } from '@/composables/useOrder'
 import type { MenuItem } from '@/api/menu'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -32,8 +33,7 @@ const handleEditOrder = () => {
 }
 
 onMounted(async () => {
-  await fetchMenu()
-  await fetchCurrentOrder()
+  await Promise.all([fetchMenu(), fetchCurrentOrder()])
   initializeSelectedItems()
 })
 </script>
@@ -41,7 +41,7 @@ onMounted(async () => {
 <template>
   <main class="max-w-4xl mx-auto px-4 py-6">
     <DeadlineBanner
-      v-if="deadline"
+      :loading="loading"
       :deadline="deadline"
       :can-order="canOrder"
       :has-order="!!currentOrder"
@@ -58,7 +58,7 @@ onMounted(async () => {
           {{ t('order.title') }}
         </h2>
         <button
-          v-if="canEdit && currentOrder"
+          v-if="canEdit && currentOrder && !loading"
           @click="handleEditOrder"
           class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
         >
@@ -66,8 +66,8 @@ onMounted(async () => {
         </button>
       </div>
 
-      <div v-if="loading" class="text-center py-8">
-        <p class="text-gray-600">{{ t('menu.loading') }}</p>
+      <div v-if="loading" class="space-y-2">
+        <SkeletonLoader v-for="i in 3" :key="i" height="40px" />
       </div>
 
       <div v-else-if="!currentOrder" class="text-center py-8">

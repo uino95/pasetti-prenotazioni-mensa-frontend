@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useRouterLoading } from '@/composables/useRouterLoading'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
+const { hideView } = useRouterLoading()
 
 const navItems = [
   { name: 'admin.users.title', route: 'admin-users', icon: 'users' },
@@ -89,7 +91,12 @@ const navigateTo = (routeName: string) => {
 
       <!-- Main Content -->
       <main class="flex-1 p-6 overflow-y-auto">
-        <RouterView />
+        <div
+          :class="{ 'opacity-0 pointer-events-none': hideView }"
+          class="transition-opacity duration-0"
+        >
+          <RouterView />
+        </div>
       </main>
     </div>
   </div>

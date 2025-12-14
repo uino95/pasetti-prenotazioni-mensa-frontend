@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { authGuard, loginGuard, orderGuard, adminGuard } from './guards'
+import { authGuard, loginGuard, adminGuard } from './guards'
+import { useRouterLoading } from '@/composables/useRouterLoading'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,7 +21,7 @@ const router = createRouter({
       path: '/order',
       name: 'order',
       component: () => import('@/views/OrderView.vue'),
-      beforeEnter: [authGuard, orderGuard],
+      beforeEnter: authGuard,
     },
     {
       path: '/admin',
@@ -53,6 +54,28 @@ const router = createRouter({
       redirect: '/order',
     },
   ],
+})
+
+// Track loading state during navigation
+const { setLoading } = useRouterLoading()
+
+router.beforeEach((to, from, next) => {
+  // Only show loading if navigating to a different route
+  if (to.path !== from.path) {
+    // Set loading immediately - this will increment routeKey and unmount old route
+    setLoading(true)
+  }
+  next()
+})
+
+router.afterEach(() => {
+  // Hide loading when route is ready
+  setLoading(false)
+})
+
+router.onError((error) => {
+  console.error('Router error:', error)
+  setLoading(false)
 })
 
 export default router

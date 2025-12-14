@@ -7,6 +7,7 @@ import { useMenu } from '@/composables/useMenu'
 import { useOrder } from '@/composables/useOrder'
 import type { MenuItem } from '@/api/menu'
 import router from '@/router'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 
 const { t } = useI18n()
 const { items, deadline, canOrder, loading, error, fetchMenu } = useMenu()
@@ -86,8 +87,7 @@ const handlePlaceOrder = async () => {
 }
 
 onMounted(async () => {
-  await fetchMenu()
-  await fetchCurrentOrder()
+  await Promise.all([fetchMenu(), fetchCurrentOrder()])
   if (currentOrder.value) {
     const orderItemIds = currentOrder.value.items.map((item) => item.documentId)
     selectedItems.value = items.value.filter((item) => orderItemIds.includes(item.documentId))
@@ -99,18 +99,14 @@ onMounted(async () => {
 <template>
   <main class="max-w-4xl mx-auto px-4 py-6">
     <DeadlineBanner
-      v-if="deadline"
+      :loading="loading"
       :deadline="deadline"
       :can-order="canOrder"
       :has-order="!!currentOrder"
       :show-order-link="true"
     />
 
-    <div v-if="loading" class="text-center py-8">
-      <p class="text-gray-600">{{ t('menu.loading') }}</p>
-    </div>
-
-    <div v-else-if="error" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+    <div v-if="error" class="p-4 bg-red-50 border border-red-200 rounded-lg">
       <p class="text-red-800">{{ error }}</p>
     </div>
 
@@ -118,7 +114,7 @@ onMounted(async () => {
       <p class="text-red-800">{{ orderError }}</p>
     </div>
 
-    <div v-else-if="items.length === 0" class="text-center py-8">
+    <div v-else-if="!loading && items.length === 0" class="text-center py-8">
       <p class="text-gray-600">{{ t('menu.noItems') }}</p>
     </div>
 
@@ -127,10 +123,18 @@ onMounted(async () => {
         {{ t('menu.title') }}
       </h2>
 
+      <div v-if="loading">
+        <div v-for="i in 3" :key="i" class="mb-6 space-y-0.5">
+          <SkeletonLoader width="150px" height="20px" customClass="mb-4" />
+          <SkeletonLoader v-for="i in 5" :key="i" variant="rectangular" height="35px" />
+        </div>
+      </div>
+
       <div v-for="categoryGroup in itemsByCategory" :key="categoryGroup.category" class="mb-6">
         <h3 class="text-lg font-semibold text-gray-800 mb-2 px-2">
           {{ categoryGroup.category }}
         </h3>
+
         <div class="overflow-x-auto">
           <table
             class="w-full border-collapse bg-white rounded-lg shadow-sm border border-gray-200"

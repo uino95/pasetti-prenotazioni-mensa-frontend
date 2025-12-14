@@ -25,6 +25,8 @@ const {
 
 const selectedDate = ref<Date>(new Date())
 const showDeleteDialog = ref(false)
+const timeInputRef = ref<HTMLInputElement | null>(null)
+const deadline = ref<string | undefined>()
 
 const selectedDateString = computed(() => {
   return selectedDate.value.toISOString().split('T')[0] || null
@@ -35,6 +37,7 @@ const handleDateChange = async (dateString: string) => {
   const date = new Date(dateString)
   selectedDate.value = date
   await fetchMenuByDate(date)
+  deadline.value = currentMenu.value?.deadline
 }
 
 const handleCreateMenu = async () => {
@@ -55,11 +58,18 @@ const handleCreateMenu = async () => {
   }
 }
 
-const handleUpdateDeadline = async (deadline: Deadline) => {
-  if (!currentMenu.value) return
+const handleTimeClick = () => {
+  // Use showPicker() API if available (modern browsers)
+  if (timeInputRef.value && 'showPicker' in timeInputRef.value) {
+    timeInputRef.value.showPicker()
+  }
+}
+
+const handleUpdateDeadline = async () => {
+  if (!currentMenu.value || !deadline.value) return
   try {
     await updateExistingMenu(currentMenu.value.documentId, {
-      deadline: deadline,
+      deadline: (deadline.value + ':00') as Deadline,
     })
   } catch (err) {
     console.error('Failed to update deadline:', err)
@@ -97,6 +107,9 @@ const confirmDelete = async () => {
 
 onMounted(async () => {
   await Promise.all([fetchAvailableProducts(), fetchMenuByDate(selectedDate.value)])
+  if (currentMenu.value) {
+    deadline.value = currentMenu.value.deadline
+  }
 })
 </script>
 
@@ -104,23 +117,35 @@ onMounted(async () => {
   <div class="max-w-7xl mx-auto">
     <div class="mb-6">
       <h1 class="text-2xl font-bold text-gray-900 mb-4">{{ t('admin.menus.title') }}</h1>
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 max-w-lg">
-        <DatePicker
-          :model-value="selectedDateString"
-          :label="t('admin.menus.selectDate')"
-          @update:model-value="handleDateChange"
-        />
+      <div class="flex items-center gap-4">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 w-full">
+          <DatePicker
+            :model-value="selectedDateString"
+            :label="t('admin.menus.selectDate')"
+            @update:model-value="handleDateChange"
+          />
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 w-full">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ t('admin.menus.deadline') }}
+          </label>
+          <input
+            ref="timeInputRef"
+            v-model="deadline"
+            type="time"
+            @change="handleUpdateDeadline"
+            @click="handleTimeClick"
+            :disabled="loading"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+          />
+        </div>
       </div>
     </div>
     <div v-if="error" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
       <p class="text-red-800">{{ error }}</p>
     </div>
 
-    <div v-if="loading && !currentMenu" class="text-center py-8">
-      <p class="text-gray-600">{{ t('admin.loading') }}</p>
-    </div>
-
-    <div v-else-if="!currentMenu" class="text-center py-8">
+    <div v-if="!currentMenu && !loading" class="text-center py-8">
       <p class="text-gray-600 mb-4">{{ t('admin.menus.noMenuForDate') }}</p>
       <button
         @click="handleCreateMenu"
@@ -132,12 +157,10 @@ onMounted(async () => {
     </div>
 
     <MenuEditor
-      v-else
       :menu="currentMenu"
       :available-products="availableProducts"
       :total-available-products="totalAvailableProducts"
       :loading="loading"
-      @update:deadline="handleUpdateDeadline"
       @add-product="handleAddProduct"
       @remove-product="handleRemoveProduct"
       @search-products="handleSearchProducts"

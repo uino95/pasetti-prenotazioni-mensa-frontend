@@ -4,14 +4,17 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/composables/useAuth'
 import { usePWAInstall } from '@/composables/usePWAInstall'
+import { useRouterLoading } from '@/composables/useRouterLoading'
 import { isAdmin } from '@/utils/role'
 import InstallPromptModal from '@/components/InstallPromptModal.vue'
+import RouterLoading from '@/components/RouterLoading.vue'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const { isAuthenticated, logout } = useAuth()
 const { isInstallable, isInstalled, resetDismiss } = usePWAInstall()
+const { isLoading, routeKey, hideView } = useRouterLoading()
 const userIsAdmin = computed(() => isAdmin())
 
 const isAdminRoute = computed(() => {
@@ -76,7 +79,15 @@ const handleInstallClick = () => {
         </div>
       </div>
     </header>
-    <RouterView />
+    <RouterLoading v-if="isLoading" />
+    <!-- Hide RouterView instantly when loading starts, but keep it mounted for async loading -->
+    <!-- For admin routes, don't hide at App level - let AdminLayout handle it -->
+    <div
+      :class="{ 'opacity-0 pointer-events-none': hideView && !isAdminRoute }"
+      class="transition-opacity duration-0"
+    >
+      <RouterView :key="`${route.path}-${routeKey}`" />
+    </div>
     <InstallPromptModal />
   </div>
 </template>

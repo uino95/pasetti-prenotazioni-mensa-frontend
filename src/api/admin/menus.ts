@@ -29,13 +29,17 @@ export interface MenuFilters {
   }
 }
 
+const populateCategories = {
+  populate: {
+    items: {
+      populate: ['category'],
+    },
+  },
+}
+
 export async function getMenus(filters?: MenuFilters): Promise<Menu[]> {
   const queryParams: Record<string, unknown> = {
-    populate: {
-      items: {
-        populate: ['category'],
-      },
-    },
+    ...populateCategories,
   }
 
   if (filters?.day) {
@@ -71,11 +75,7 @@ export async function getMenuByDate(date: Date): Promise<Menu | null> {
         $eq: dateString,
       },
     },
-    populate: {
-      items: {
-        populate: ['category'],
-      },
-    },
+    ...populateCategories,
   })
 
   const response = await apiClient.get<ApiResponse<Menu[]>>(`/api/menus?${query}`)
@@ -86,7 +86,10 @@ export async function getMenuByDate(date: Date): Promise<Menu | null> {
 }
 
 export async function createMenu(data: CreateMenuRequest): Promise<Menu> {
-  const response = await apiClient.post<ApiResponse<Menu>>('/api/menus', {
+  const query = qs.stringify({
+    ...populateCategories,
+  })
+  const response = await apiClient.post<ApiResponse<Menu>>(`/api/menus?${query}`, {
     data: {
       day: data.day,
       items: data.items ? { set: data.items } : undefined,
@@ -103,7 +106,10 @@ export async function updateMenu(menuId: string, data: UpdateMenuRequest): Promi
     updateData.items = { set: data.items }
   }
 
-  const response = await apiClient.put<ApiResponse<Menu>>(`/api/menus/${menuId}`, {
+  const query = qs.stringify({
+    ...populateCategories,
+  })
+  const response = await apiClient.put<ApiResponse<Menu>>(`/api/menus/${menuId}?${query}`, {
     data: updateData,
   })
   return response.data.data
@@ -115,11 +121,7 @@ export async function deleteMenu(menuId: string): Promise<void> {
 
 export async function addMenuItemToMenu(menuId: string, itemId: string): Promise<Menu> {
   const query = qs.stringify({
-    populate: {
-      items: {
-        populate: ['category'],
-      },
-    },
+    ...populateCategories,
   })
   const response = await apiClient.put<ApiResponse<Menu>>(`/api/menus/${menuId}?${query}`, {
     data: {
@@ -133,11 +135,7 @@ export async function addMenuItemToMenu(menuId: string, itemId: string): Promise
 
 export async function removeMenuItemFromMenu(menuId: string, itemId: string): Promise<Menu> {
   const query = qs.stringify({
-    populate: {
-      items: {
-        populate: ['category'],
-      },
-    },
+    ...populateCategories,
   })
   const response = await apiClient.put<ApiResponse<Menu>>(`/api/menus/${menuId}?${query}`, {
     data: {

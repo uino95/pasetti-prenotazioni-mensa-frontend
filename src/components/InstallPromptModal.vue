@@ -50,7 +50,7 @@ const handleDismiss = () => {
 <template>
   <div
     v-if="showModal"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
     @click.self="handleDismiss"
   >
     <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative" @click.stop>

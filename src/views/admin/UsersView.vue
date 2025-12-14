@@ -6,6 +6,7 @@ import UserForm from '@/components/admin/UserForm.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import type { User, CreateUserRequest, UpdateUserRequest } from '@/api/admin/users'
 import { useDebounceFn } from '@vueuse/core'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 
 const { t } = useI18n()
 const { users, loading, error, fetchUsers, createNewUser, updateExistingUser, removeUser } =
@@ -136,11 +137,7 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div v-if="loading && users.length === 0" class="text-center py-8">
-      <p class="text-gray-600">{{ t('admin.loading') }}</p>
-    </div>
-
-    <div v-else-if="users.length === 0" class="text-center py-8">
+    <div v-if="users.length === 0 && !loading" class="text-center py-8">
       <p class="text-gray-600">{{ t('admin.users.noUsers') }}</p>
     </div>
 
@@ -171,25 +168,40 @@ onMounted(async () => {
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="user in users" :key="user.id" class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{ user.username }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-              {{ user.email }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-              {{ user.orders?.count || 0 }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <button @click="handleEditUser(user)" class="text-blue-600 hover:text-blue-900 mr-4">
-                {{ t('admin.edit') }}
-              </button>
-              <button @click="handleDeleteUser(user)" class="text-red-600 hover:text-red-900">
-                {{ t('admin.delete') }}
-              </button>
-            </td>
-          </tr>
+          <template v-if="loading">
+            <tr v-for="i in 5" :key="i" class="hover:bg-gray-50">
+              <td v-for="j in 3" :key="j" class="px-6 py-2">
+                <SkeletonLoader height="20px" width="150px" />
+              </td>
+              <td class="px-6 py-4 flex justify-end">
+                <SkeletonLoader height="20px" width="150px" />
+              </td>
+            </tr>
+          </template>
+          <template v-else>
+            <tr v-for="user in users" :key="user.id" class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ user.username }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                {{ user.email }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                {{ user.orders?.count || 0 }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button
+                  @click="handleEditUser(user)"
+                  class="text-blue-600 hover:text-blue-900 mr-4"
+                >
+                  {{ t('admin.edit') }}
+                </button>
+                <button @click="handleDeleteUser(user)" class="text-red-600 hover:text-red-900">
+                  {{ t('admin.delete') }}
+                </button>
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>

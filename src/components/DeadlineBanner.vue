@@ -3,18 +3,23 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { timeUntilDeadline } from '@/utils/date'
+import SkeletonLoader from './SkeletonLoader.vue'
 
 const { t } = useI18n()
 const router = useRouter()
 
 const props = defineProps<{
-  deadline: string
   canOrder: boolean
+  deadline?: string
+  loading?: boolean
   hasOrder?: boolean
   showOrderLink?: boolean
 }>()
 
-const timeRemaining = computed(() => timeUntilDeadline(props.deadline))
+const timeRemaining = computed(() => {
+  if (!props.deadline) return ''
+  return timeUntilDeadline(props.deadline)
+})
 
 const bannerClass = computed(() => {
   if (props.canOrder) {
@@ -42,7 +47,8 @@ const navigateToOrder = () => {
 </script>
 
 <template>
-  <div class="p-4 rounded-lg mb-4" :class="bannerClass">
+  <SkeletonLoader v-if="loading" height="82px" customClass="mb-4" />
+  <div v-else-if="deadline" class="p-4 rounded-lg mb-4" :class="bannerClass">
     <div class="flex items-center justify-between">
       <div class="flex-1">
         <p class="font-medium">

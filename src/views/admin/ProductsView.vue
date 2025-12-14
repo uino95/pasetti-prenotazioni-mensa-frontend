@@ -6,6 +6,7 @@ import ProductForm from '@/components/admin/ProductForm.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import type { Product, CreateProductRequest, UpdateProductRequest } from '@/api/admin/products'
 import { useDebounceFn } from '@vueuse/core'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 
 const { t } = useI18n()
 const {
@@ -111,11 +112,7 @@ onMounted(async () => {
       />
     </div>
 
-    <div v-if="loading && products.length === 0" class="text-center py-8">
-      <p class="text-gray-600">{{ t('admin.loading') }}</p>
-    </div>
-
-    <div v-else-if="products.length === 0" class="text-center py-8">
+    <div v-if="products.length === 0 && !loading" class="text-center py-8">
       <p class="text-gray-600">{{ t('admin.products.noProducts') }}</p>
     </div>
 
@@ -141,25 +138,40 @@ onMounted(async () => {
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="product in products" :key="product.documentId" class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{ product.name }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-              {{ product.category?.name || '-' }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <button
-                @click="handleEditProduct(product)"
-                class="text-blue-600 hover:text-blue-900 mr-4"
-              >
-                {{ t('admin.edit') }}
-              </button>
-              <button @click="handleDeleteProduct(product)" class="text-red-600 hover:text-red-900">
-                {{ t('admin.delete') }}
-              </button>
-            </td>
-          </tr>
+          <template v-if="loading">
+            <tr v-for="i in 5" :key="i" class="hover:bg-gray-50">
+              <td v-for="j in 2" :key="j" class="px-6 py-2">
+                <SkeletonLoader height="20px" width="150px" />
+              </td>
+              <td class="px-6 py-4 flex justify-end">
+                <SkeletonLoader height="20px" width="150px" />
+              </td>
+            </tr>
+          </template>
+          <template v-else>
+            <tr v-for="product in products" :key="product.documentId" class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ product.name }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                {{ product.category?.name || '-' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button
+                  @click="handleEditProduct(product)"
+                  class="text-blue-600 hover:text-blue-900 mr-4"
+                >
+                  {{ t('admin.edit') }}
+                </button>
+                <button
+                  @click="handleDeleteProduct(product)"
+                  class="text-red-600 hover:text-red-900"
+                >
+                  {{ t('admin.delete') }}
+                </button>
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
       <div class="w-full flex justify-between items-center p-4">
@@ -172,7 +184,8 @@ onMounted(async () => {
           {{ t('utils.loadMore') }}
         </button>
         <div v-else class="flex-1"></div>
-        <div class="flex-1 text-right">{{ products.length }} / {{ totalProducts }}</div>
+        <SkeletonLoader v-if="loading" height="25px" width="75px" />
+        <div v-else class="flex-1 text-right">{{ products.length }} / {{ totalProducts }}</div>
       </div>
     </div>
 

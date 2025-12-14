@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Deadline, Menu } from '@/api/admin/menus'
 import type { Product } from '@/api/admin/products'
 import { useDebounceFn } from '@vueuse/core'
+import SkeletonLoader from '../SkeletonLoader.vue'
 
 interface Props {
   menu: Menu | null
@@ -25,32 +26,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-const deadline = ref<string>()
 const searchQuery = ref('')
-const timeInputRef = ref<HTMLInputElement | null>(null)
-
-watch(
-  () => props.menu,
-  (newMenu) => {
-    if (newMenu) {
-      deadline.value = newMenu.deadline || ''
-    }
-  },
-  { immediate: true },
-)
-
-const handleDeadlineChange = () => {
-  if (deadline.value) {
-    emit('update:deadline', (deadline.value + ':00') as Deadline)
-  }
-}
-
-const handleTimeClick = () => {
-  // Use showPicker() API if available (modern browsers)
-  if (timeInputRef.value && 'showPicker' in timeInputRef.value) {
-    timeInputRef.value.showPicker()
-  }
-}
 
 const handleAddProduct = (productId: string) => {
   emit('add-product', productId)
@@ -94,36 +70,24 @@ const menuItemsByCategory = computed(() => {
 </script>
 
 <template>
-  <div v-if="!menu" class="text-center py-8">
-    <p class="text-gray-600">{{ t('admin.menus.noMenuForDate') }}</p>
-  </div>
-
-  <div v-else class="space-y-6">
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 max-w-lg">
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1">
-          {{ t('admin.menus.deadline') }}
-        </label>
-        <input
-          ref="timeInputRef"
-          v-model="deadline"
-          type="time"
-          @change="handleDeadlineChange"
-          @click="handleTimeClick"
-          :disabled="loading"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
-        />
-      </div>
-    </div>
-
+  <div v-if="menu || loading" class="space-y-6">
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4">
         {{ t('admin.menus.currentItems') }}
       </h3>
-      <div v-if="menuItemsByCategory.length === 0" class="text-gray-500 text-center py-4">
+      <div
+        v-if="menuItemsByCategory.length === 0 && !loading"
+        class="text-gray-500 text-center py-4"
+      >
         {{ t('admin.menus.noItems') }}
       </div>
       <div v-else class="space-y-4">
+        <template v-if="loading">
+          <div v-for="i in 3" :key="i" class="space-y-2">
+            <SkeletonLoader height="20px" width="150px" custom-class="mb-2" />
+            <SkeletonLoader v-for="i in 3" :key="i" height="48px" />
+          </div>
+        </template>
         <div v-for="categoryGroup in menuItemsByCategory" :key="categoryGroup.category">
           <h4 class="text-sm font-medium text-gray-700 mb-2">{{ categoryGroup.category }}</h4>
           <div class="space-y-2">
@@ -163,6 +127,9 @@ const menuItemsByCategory = computed(() => {
         {{ t('admin.menus.noAvailableProducts') }}
       </div>
       <div v-else class="space-y-2">
+        <template v-if="loading">
+          <SkeletonLoader v-for="i in 10" :key="i" height="48px" />
+        </template>
         <button
           v-for="product in availableProductsToAdd"
           :key="product.documentId"
