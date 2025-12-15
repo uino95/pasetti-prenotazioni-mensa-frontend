@@ -1,9 +1,11 @@
 import { ref, computed } from 'vue'
-import { getMenuOfDay, type MenuItem } from '@/api/menu'
+import { getMenuOfDay, type MenuItem } from '@/api/admin/menus'
 import { isDeadlinePassed, timeUntilDeadline } from '@/utils/date'
 import { AxiosError } from 'axios'
+import type { Menu } from '@/api/admin/menus'
 
 export function useMenu() {
+  const menu = ref<Menu | null>(null)
   const items = ref<MenuItem[]>([])
   const deadline = ref<string>('')
   const loading = ref(false)
@@ -23,9 +25,9 @@ export function useMenu() {
     loading.value = true
     error.value = null
     try {
-      const response = await getMenuOfDay()
-      items.value = response.items
-      deadline.value = response.deadline
+      menu.value = await getMenuOfDay()
+      items.value = menu.value.items
+      deadline.value = menu.value.deadline
     } catch (err: unknown) {
       if (err instanceof AxiosError && err.response?.status === 404) {
         error.value = 'No menu found for today'
@@ -38,6 +40,7 @@ export function useMenu() {
   }
 
   return {
+    menu,
     items,
     deadline,
     canOrder,

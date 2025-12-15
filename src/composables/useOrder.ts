@@ -39,7 +39,7 @@ export function useOrder(canOrderFromMenu: () => boolean) {
     }
   }
 
-  const placeOrder = async (itemIds: string[], note?: string) => {
+  const placeOrder = async (itemIds: string[], menuId: string, note?: string) => {
     if (!authStore.user?.documentId) {
       return
     }
@@ -48,6 +48,7 @@ export function useOrder(canOrderFromMenu: () => boolean) {
     try {
       const request: PlaceOrderRequest = {
         userId: authStore.user.documentId,
+        menuId: menuId,
         items: itemIds,
         note: note || undefined,
       }

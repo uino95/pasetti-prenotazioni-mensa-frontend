@@ -5,12 +5,12 @@ import MenuCard from '@/components/MenuCard.vue'
 import DeadlineBanner from '@/components/DeadlineBanner.vue'
 import { useMenu } from '@/composables/useMenu'
 import { useOrder } from '@/composables/useOrder'
-import type { MenuItem } from '@/api/menu'
+import type { MenuItem } from '@/api/admin/menus'
 import router from '@/router'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 
 const { t } = useI18n()
-const { items, deadline, canOrder, loading, error, fetchMenu } = useMenu()
+const { items, deadline, canOrder, loading, error, fetchMenu, menu } = useMenu()
 const {
   currentOrder,
   loading: orderLoading,
@@ -71,13 +71,13 @@ const toggleItem = (itemId: string) => {
 }
 
 const handlePlaceOrder = async () => {
-  if (selectedItems.value.length === 0) return
+  if (selectedItems.value.length === 0 || !menu.value?.documentId) return
 
   try {
     if (currentOrder.value) {
       await updateOrder(currentOrder.value.documentId, selectedItemIds.value, note.value)
     } else {
-      await placeOrder(selectedItemIds.value, note.value)
+      await placeOrder(selectedItemIds.value, menu.value.documentId, note.value)
     }
     router.push({ name: 'order' })
   } catch (err) {

@@ -15,6 +15,7 @@ export interface Order {
 
 export interface PlaceOrderRequest {
   items: string[]
+  menuId: string
   userId: string
   note?: string
 }
@@ -59,6 +60,7 @@ export async function placeOrder(request: PlaceOrderRequest): Promise<Order> {
       },
       note: request.note,
       user: request.userId,
+      menu: request.menuId,
     },
   })
   return response.data

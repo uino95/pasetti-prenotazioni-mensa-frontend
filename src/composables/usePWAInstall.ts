@@ -138,6 +138,7 @@ export function usePWAInstall() {
     return true
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const checkServiceWorker = async () => {
     if ('serviceWorker' in navigator) {
       try {
@@ -163,6 +164,7 @@ export function usePWAInstall() {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const checkManifest = async () => {
     try {
       const manifestLink = document.querySelector('link[rel="manifest"]')
@@ -194,6 +196,7 @@ export function usePWAInstall() {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const checkBrowserSupport = () => {
     const support = {
       serviceWorker: 'serviceWorker' in navigator,
