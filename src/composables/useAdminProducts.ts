@@ -12,7 +12,7 @@ import {
   type ProductFilters,
   getCategories,
 } from '@/api/admin/products'
-import { type Category } from '@/api/menu'
+import { type Category } from '@/api/admin/menus'
 
 export function useAdminProducts() {
   const products = ref<Product[]>([])

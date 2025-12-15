@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import DeadlineBanner from '@/components/DeadlineBanner.vue'
 import { useMenu } from '@/composables/useMenu'
 import { useOrder } from '@/composables/useOrder'
-import type { MenuItem } from '@/api/menu'
+import type { MenuItem } from '@/api/admin/menus'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 
 const { t } = useI18n()

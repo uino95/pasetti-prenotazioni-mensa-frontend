@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { MenuItem } from '@/api/menu'
+import type { MenuItem } from '@/api/admin/menus'
 
 const props = defineProps<{
   item: MenuItem

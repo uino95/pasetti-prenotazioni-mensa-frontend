@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Product, CreateProductRequest, UpdateProductRequest } from '@/api/admin/products'
-import type { Category } from '@/api/menu'
+import type { Category } from '@/api/admin/menus'
 
 interface Props {
   product?: Product | null

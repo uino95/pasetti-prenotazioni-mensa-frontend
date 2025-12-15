@@ -1,6 +1,6 @@
 import apiClient, { type ApiResponse, type Pagination } from '../client'
 import qs from 'qs'
-import type { Category } from '../menu'
+import type { Category } from './menus'
 
 export interface Product {
   documentId: string
