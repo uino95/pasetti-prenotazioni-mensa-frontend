@@ -5,13 +5,25 @@ import { usePWAInstall } from '@/composables/usePWAInstall'
 import { useAuth } from '@/composables/useAuth'
 
 const { t } = useI18n()
-const { install, dismiss, isInstalled, isInstallable, installPrompt, isDismissed } = usePWAInstall()
+const {
+  install,
+  dismiss,
+  isInstalled,
+  isInstallable,
+  installPrompt,
+  isDismissed,
+  isCheckingInstallation,
+} = usePWAInstall()
 const { isAuthenticated } = useAuth()
 
-// Show modal only if user is authenticated, not installed, and not dismissed
-// This gives the browser more time to detect the install prompt after login
+// Show modal only if user is authenticated, not installed, not dismissed, and installation check is complete
+// Wait for installation check to complete to avoid showing modal if app is already installed
 const showModal = computed(() => {
   if (!isAuthenticated.value) {
+    return false
+  }
+  // Wait for installation check to complete
+  if (isCheckingInstallation.value) {
     return false
   }
   if (isInstalled.value) {

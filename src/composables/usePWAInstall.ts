@@ -12,7 +12,8 @@ export function usePWAInstall() {
   const installPrompt = ref<BeforeInstallPromptEvent | null>(null)
   const isInstallable = ref(false)
   const isInstalled = ref(false)
-  const isDismissed = ref(true)
+  const isDismissed = ref(false)
+  const isCheckingInstallation = ref(true)
 
   const checkIfInstalled = () => {
     // Check if app is running in standalone mode (installed)
@@ -214,28 +215,33 @@ export function usePWAInstall() {
 
   onMounted(async () => {
     console.log('[PWA Install] Initializing PWA install detection...')
-    // Check browser support
-    checkBrowserSupport()
+    isCheckingInstallation.value = true
 
-    // Check service worker
-    await checkServiceWorker()
-
-    // Check manifest
-    await checkManifest()
-
-    // Check if already installed
+    // Check if already installed first
     if (checkIfInstalled()) {
+      isCheckingInstallation.value = false
       return
     }
 
     // Check if user previously dismissed
     if (checkDismissed()) {
       isDismissed.value = true
+      isCheckingInstallation.value = false
       console.log('[PWA Install] Prompt was dismissed, not showing')
       return
-    } else {
-      isDismissed.value = false
     }
+
+    // // Check browser support
+    // checkBrowserSupport()
+
+    // // Check service worker
+    // await checkServiceWorker()
+
+    // // Check manifest
+    // await checkManifest()
+
+    // Installation check is complete
+    isCheckingInstallation.value = false
 
     // Listen for the beforeinstallprompt event
     console.log('[PWA Install] Listening for beforeinstallprompt event...')
@@ -294,6 +300,7 @@ export function usePWAInstall() {
     isInstallable,
     isInstalled,
     isDismissed,
+    isCheckingInstallation,
     install,
     dismiss,
     resetDismiss,

@@ -4,7 +4,6 @@
 
 Mancano
 
-- aggiungere skeleton loaders
 - guardare cosa succede su safari
 
 - aggiungere relazione tra ordine e menu
