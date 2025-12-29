@@ -8,7 +8,7 @@
     "password": "Password",
     "loggingIn": "Accesso in corso...",
     "loginError": "Credenziali non valide",
-    "logout": "Esci"
+    "logout": "Logout"
   },
   "menu": {
     "title": "Menu del Giorno",

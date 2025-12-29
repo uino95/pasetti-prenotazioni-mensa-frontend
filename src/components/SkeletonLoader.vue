@@ -70,3 +70,4 @@ const skeletonStyle = computed(() => {
 </template>
 
 <style scoped></style>
+
