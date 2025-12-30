@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Button } from '@/components/ui/button'
 
 const { t } = useI18n()
 const props = defineProps<{
@@ -49,13 +50,9 @@ const handleSubmit = () => {
         :disabled="props.isLoading"
       />
     </div>
-    <button
-      type="submit"
-      :disabled="props.isLoading"
-      class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-    >
+    <Button type="submit" :disabled="props.isLoading" class="w-full">
       {{ props.isLoading ? t('auth.loggingIn') : t('auth.login') }}
-    </button>
+    </Button>
   </form>
 </template>
 

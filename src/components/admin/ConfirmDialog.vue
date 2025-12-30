@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Button } from '@/components/ui/button'
 
 interface Props {
   show: boolean
@@ -34,11 +36,10 @@ const handleCancel = () => {
   emit('cancel')
 }
 
-const variantClasses = {
-  danger: 'bg-red-600 hover:bg-red-700',
-  warning: 'bg-yellow-600 hover:bg-yellow-700',
-  info: 'bg-blue-600 hover:bg-blue-700',
-}
+const confirmButtonVariant = computed(() => {
+  if (props.variant === 'danger') return 'destructive'
+  return 'default'
+})
 </script>
 
 <template>
@@ -53,21 +54,12 @@ const variantClasses = {
           <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ title }}</h3>
           <p class="text-gray-600 mb-6">{{ message }}</p>
           <div class="flex justify-end gap-3">
-            <button
-              @click="handleCancel"
-              class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-            >
+            <Button @click="handleCancel" variant="secondary">
               {{ defaultCancelText }}
-            </button>
-            <button
-              @click="handleConfirm"
-              :class="[
-                'px-4 py-2 text-white rounded-lg transition-colors',
-                variantClasses[variant],
-              ]"
-            >
+            </Button>
+            <Button @click="handleConfirm" :variant="confirmButtonVariant">
               {{ defaultConfirmText }}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

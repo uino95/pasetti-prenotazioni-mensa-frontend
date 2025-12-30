@@ -16,7 +16,8 @@
     "error": "Error loading menu",
     "noItems": "No items available in today's menu",
     "category": "Category",
-    "itemName": "Name"
+    "itemName": "Name",
+    "update": "Update"
   },
   "order": {
     "title": "Your Order",

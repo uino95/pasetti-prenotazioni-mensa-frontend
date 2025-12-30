@@ -6,6 +6,7 @@ import MenuEditor from '@/components/admin/MenuEditor.vue'
 import DatePicker from '@/components/admin/DatePicker.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import type { Deadline } from '@/api/admin/menus'
+import { Button } from '@/components/ui/button'
 
 const { t } = useI18n()
 const {
@@ -147,13 +148,9 @@ onMounted(async () => {
 
     <div v-if="!currentMenu && !loading" class="text-center py-8">
       <p class="text-gray-600 mb-4">{{ t('admin.menus.noMenuForDate') }}</p>
-      <button
-        @click="handleCreateMenu"
-        :disabled="loading"
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-      >
+      <Button @click="handleCreateMenu" :disabled="loading">
         {{ t('admin.menus.createMenu') }}
-      </button>
+      </Button>
     </div>
 
     <MenuEditor

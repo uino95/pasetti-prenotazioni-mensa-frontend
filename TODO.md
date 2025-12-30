@@ -5,8 +5,6 @@
 
 Mancano
 
-- nascondere il bottone di logout in un menu a tendina
-- aggiungere bottone aggiorna
 - fare modalità ospite che mi deve permettere di prenotare per più ospiti
 - guardare cosa succede su safari
 

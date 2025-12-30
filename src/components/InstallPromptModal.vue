@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePWAInstall } from '@/composables/usePWAInstall'
 import { useAuth } from '@/composables/useAuth'
+import { Button } from '@/components/ui/button'
 
 const { t } = useI18n()
 const {
@@ -67,9 +68,11 @@ const handleDismiss = () => {
   >
     <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative" @click.stop>
       <!-- Close button -->
-      <button
+      <Button
         @click="handleDismiss"
-        class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+        variant="ghost"
+        size="icon"
+        class="absolute top-4 right-4"
         :aria-label="t('install.close')"
       >
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,7 +83,7 @@ const handleDismiss = () => {
             d="M6 18L18 6M6 6l12 12"
           />
         </svg>
-      </button>
+      </Button>
 
       <!-- Content -->
       <div class="pr-8">
@@ -124,25 +127,17 @@ const handleDismiss = () => {
 
         <!-- Actions -->
         <div class="flex flex-col sm:flex-row gap-3">
-          <button
+          <Button
             v-if="!isIOS || isStandaloneIOS"
             @click="handleInstall"
             :disabled="!canInstall"
-            :class="[
-              'flex-1 px-6 py-3 rounded-lg transition-colors font-medium',
-              canInstall
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed',
-            ]"
+            class="flex-1"
           >
             {{ t('install.installButton') }}
-          </button>
-          <button
-            @click="handleDismiss"
-            class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
-          >
+          </Button>
+          <Button @click="handleDismiss" variant="secondary" class="flex-1">
             {{ t('install.dismissButton') }}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

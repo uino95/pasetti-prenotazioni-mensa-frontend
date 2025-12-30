@@ -8,6 +8,7 @@ import { useOrder } from '@/composables/useOrder'
 import type { MenuItem } from '@/api/admin/menus'
 import router from '@/router'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
+import { Button } from '@/components/ui/button'
 
 const { t } = useI18n()
 const { items, deadline, canOrder, loading, error, fetchMenu, menu } = useMenu()
@@ -172,13 +173,9 @@ onMounted(async () => {
         </div>
         <div class="flex items-center justify-between">
           <p class="text-gray-700">{{ selectedItems.length }} {{ t('order.selectedItems') }}</p>
-          <button
-            @click="handlePlaceOrder"
-            :disabled="orderLoading"
-            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
+          <Button @click="handlePlaceOrder" :disabled="orderLoading">
             {{ orderLoading ? t('order.placing') : t('order.placeOrder') }}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

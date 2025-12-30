@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { timeUntilDeadline } from '@/utils/date'
 import SkeletonLoader from './SkeletonLoader.vue'
+import { Button } from '@/components/ui/button'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -59,12 +60,9 @@ const navigateToOrder = () => {
         </p>
       </div>
       <div v-if="showOrderLink && hasOrder && !canOrder" class="ml-4">
-        <button
-          @click="navigateToOrder"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-        >
+        <Button @click="navigateToOrder" size="sm">
           {{ t('deadline.viewOrder') }}
-        </button>
+        </Button>
       </div>
     </div>
   </div>

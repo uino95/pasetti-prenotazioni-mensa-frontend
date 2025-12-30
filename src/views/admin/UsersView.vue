@@ -7,6 +7,7 @@ import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import type { User, CreateUserRequest, UpdateUserRequest } from '@/api/admin/users'
 import { useDebounceFn } from '@vueuse/core'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
+import { Button } from '@/components/ui/button'
 
 const { t } = useI18n()
 const { users, loading, error, fetchUsers, createNewUser, updateExistingUser, removeUser } =
@@ -79,12 +80,9 @@ onMounted(async () => {
   <div class="max-w-7xl mx-auto">
     <div class="mb-6 flex justify-between items-center">
       <h1 class="text-2xl font-bold text-gray-900">{{ t('admin.users.title') }}</h1>
-      <button
-        @click="handleCreateUser"
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-      >
+      <Button @click="handleCreateUser">
         {{ t('admin.users.createUser') }}
-      </button>
+      </Button>
     </div>
 
     <div v-if="error" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -128,12 +126,12 @@ onMounted(async () => {
             class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-32"
           />
         </div>
-        <button
+        <Button
           @click="fetchUsers({ month: selectedMonth, year: selectedYear })"
-          class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+          variant="secondary"
         >
           {{ t('admin.users.refreshCounts') }}
-        </button>
+        </Button>
       </div>
     </div>
 
@@ -190,15 +188,12 @@ onMounted(async () => {
                 {{ user.orders?.count || 0 }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button
-                  @click="handleEditUser(user)"
-                  class="text-blue-600 hover:text-blue-900 mr-4"
-                >
+                <Button @click="handleEditUser(user)" variant="ghost" size="sm" class="mr-4">
                   {{ t('admin.edit') }}
-                </button>
-                <button @click="handleDeleteUser(user)" class="text-red-600 hover:text-red-900">
+                </Button>
+                <Button @click="handleDeleteUser(user)" variant="ghost" size="sm">
                   {{ t('admin.delete') }}
-                </button>
+                </Button>
               </td>
             </tr>
           </template>

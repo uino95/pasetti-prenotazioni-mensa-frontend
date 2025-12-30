@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
 import { Menu } from 'lucide-vue-next'
 
 const { t } = useI18n()
@@ -58,17 +59,19 @@ const handleInstallClick = () => {
         <h1 class="text-xl font-bold text-gray-900">{{ t('app.name') }}</h1>
         <!-- Desktop buttons -->
         <div class="hidden md:flex items-center gap-4">
-          <button
+          <Button
             v-if="userIsAdmin"
             @click="router.push(isAdminRoute ? '/' : '/admin')"
-            class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            variant="ghost"
+            size="sm"
           >
             {{ isAdminRoute ? t('admin.logout') : t('admin.title') }}
-          </button>
-          <button
+          </Button>
+          <Button
             v-if="showInstallButton"
             @click="handleInstallClick"
-            class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+            variant="ghost"
+            size="sm"
             :title="t('install.showPrompt')"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,10 +83,10 @@ const handleInstallClick = () => {
               />
             </svg>
             {{ t('install.installButton') }}
-          </button>
-          <button @click="logout" class="text-sm text-gray-600 hover:text-gray-900">
+          </Button>
+          <Button @click="logout" variant="ghost" size="sm">
             {{ t('auth.logout') }}
-          </button>
+          </Button>
         </div>
         <!-- Mobile dropdown menu -->
         <DropdownMenu>

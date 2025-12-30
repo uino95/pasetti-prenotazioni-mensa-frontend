@@ -2,6 +2,7 @@
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useRouterLoading } from '@/composables/useRouterLoading'
+import { Button } from '@/components/ui/button'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -29,16 +30,12 @@ const navigateTo = (routeName: string) => {
       <!-- Sidebar -->
       <aside class="w-64 bg-white shadow-sm flex flex-col">
         <nav class="p-4 space-y-2 overflow-y-auto">
-          <button
+          <Button
             v-for="item in navItems"
             :key="item.route"
             @click="navigateTo(item.route)"
-            :class="[
-              'w-full text-left px-4 py-3 rounded-lg transition-colors',
-              isActive(item.route)
-                ? 'bg-blue-100 text-blue-700 font-medium'
-                : 'text-gray-700 hover:bg-gray-100',
-            ]"
+            :variant="isActive(item.route) ? 'secondary' : 'ghost'"
+            class="w-full justify-start"
           >
             <div class="flex items-center gap-3">
               <svg
@@ -85,7 +82,7 @@ const navigateTo = (routeName: string) => {
               </svg>
               <span>{{ t(item.name) }}</span>
             </div>
-          </button>
+          </Button>
         </nav>
       </aside>
 

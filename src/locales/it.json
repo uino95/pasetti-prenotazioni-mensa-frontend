@@ -16,7 +16,8 @@
     "error": "Errore nel caricamento del menu",
     "noItems": "Nessun elemento disponibile nel menu di oggi",
     "category": "Categoria",
-    "itemName": "Nome"
+    "itemName": "Nome",
+    "update": "Aggiorna"
   },
   "order": {
     "title": "Il Tuo Ordine",

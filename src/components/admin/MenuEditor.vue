@@ -5,6 +5,8 @@ import type { Deadline, Menu } from '@/api/admin/menus'
 import type { Product } from '@/api/admin/products'
 import { useDebounceFn } from '@vueuse/core'
 import SkeletonLoader from '../SkeletonLoader.vue'
+import { Button } from '@/components/ui/button'
+import { Trash2 } from 'lucide-vue-next'
 
 interface Props {
   menu: Menu | null
@@ -97,13 +99,15 @@ const menuItemsByCategory = computed(() => {
               class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
             >
               <span class="text-gray-900">{{ item.name }}</span>
-              <button
+              <Button
                 @click="handleRemoveProduct(item.documentId)"
                 :disabled="loading"
-                class="text-red-600 hover:text-red-800 disabled:opacity-50"
+                variant="ghost"
+                size="sm"
               >
+                <Trash2 class="w-4 h-4" />
                 {{ t('admin.remove') }}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -130,26 +134,23 @@ const menuItemsByCategory = computed(() => {
         <template v-if="loading">
           <SkeletonLoader v-for="i in 10" :key="i" height="48px" />
         </template>
-        <button
+        <Button
           v-for="product in availableProductsToAdd"
           :key="product.documentId"
           @click="handleAddProduct(product.documentId)"
           :disabled="loading"
-          class="w-full text-left px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg disabled:opacity-50 transition-colors"
+          variant="ghost"
+          class="w-full justify-start"
         >
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between w-full">
             <span class="text-gray-900">{{ product.name }}</span>
             <span class="text-sm text-gray-500">{{ product.category?.name }}</span>
           </div>
-        </button>
+        </Button>
         <div v-if="availableProducts.length < totalAvailableProducts" class="flex justify-center">
-          <button
-            @click="loadMoreProducts"
-            :disabled="loading"
-            class="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition-colors"
-          >
+          <Button @click="loadMoreProducts" :disabled="loading" variant="ghost" size="sm">
             {{ t('utils.loadMore') }}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

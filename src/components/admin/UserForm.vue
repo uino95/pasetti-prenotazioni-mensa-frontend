@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { User, CreateUserRequest, UpdateUserRequest } from '@/api/admin/users'
+import { Button } from '@/components/ui/button'
 
 interface Props {
   user?: User | null
@@ -119,19 +120,12 @@ onMounted(() => {
               />
             </div>
             <div class="flex justify-end gap-3 pt-4">
-              <button
-                type="button"
-                @click="handleCancel"
-                class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-              >
+              <Button type="button" @click="handleCancel" variant="secondary">
                 {{ t('admin.cancel') }}
-              </button>
-              <button
-                type="submit"
-                class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-              >
+              </Button>
+              <Button type="submit">
                 {{ isEditMode ? t('admin.save') : t('admin.create') }}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

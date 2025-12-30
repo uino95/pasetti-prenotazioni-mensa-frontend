@@ -7,6 +7,7 @@ import { useMenu } from '@/composables/useMenu'
 import { useOrder } from '@/composables/useOrder'
 import type { MenuItem } from '@/api/admin/menus'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
+import { Button } from '@/components/ui/button'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -32,9 +33,13 @@ const handleEditOrder = () => {
   router.push({ name: 'menu' })
 }
 
-onMounted(async () => {
+const init = async () => {
   await Promise.all([fetchMenu(), fetchCurrentOrder()])
   initializeSelectedItems()
+}
+
+onMounted(async () => {
+  init()
 })
 </script>
 
@@ -57,13 +62,9 @@ onMounted(async () => {
         <h2 class="text-2xl font-bold text-gray-900">
           {{ t('order.title') }}
         </h2>
-        <button
-          v-if="canEdit && currentOrder && !loading"
-          @click="handleEditOrder"
-          class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-        >
+        <Button v-if="canEdit && currentOrder && !loading" @click="handleEditOrder">
           {{ t('order.editOrder') }}
-        </button>
+        </Button>
       </div>
 
       <div v-if="loading" class="space-y-2">
@@ -72,13 +73,10 @@ onMounted(async () => {
 
       <div v-else-if="!currentOrder" class="text-center py-8">
         <p class="text-gray-600 mb-4">{{ t('order.noOrder') }}</p>
-        <button
-          v-if="canOrder"
-          @click="router.push({ name: 'menu' })"
-          class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-        >
+        <Button v-if="canOrder" @click="router.push({ name: 'menu' })">
           {{ t('menu.title') }}
-        </button>
+        </Button>
+        <Button v-else @click="init">{{ t('menu.update') }}</Button>
       </div>
 
       <template v-else>
