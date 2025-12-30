@@ -98,7 +98,16 @@
       "searchPlaceholder": "Search by username, email or name...",
       "noUsers": "No users found",
       "passwordRequired": "Password is required",
-      "deleteConfirm": "Are you sure you want to delete user {username}?"
+      "deleteConfirm": "Are you sure you want to delete user {username}?",
+      "uploadCsv": "Upload CSV",
+      "uploadCsvTitle": "Upload Users from CSV",
+      "uploadCsvDescription": "Select a CSV file with columns: username, email, password",
+      "uploadCsvProcessing": "Processing...",
+      "uploadCsvSuccess": "Successfully created {count} users",
+      "uploadCsvError": "Error during upload: {error}",
+      "uploadCsvPartialSuccess": "Created {success} users out of {total}. {failed} failed.",
+      "uploadCsvInvalidFormat": "Invalid CSV format. Make sure the file contains columns: username, email, password",
+      "uploadCsvMissingHeaders": "Missing headers in CSV: {headers}. Make sure the file contains columns: username, email, password"
     },
     "menus": {
       "title": "Menu Management",

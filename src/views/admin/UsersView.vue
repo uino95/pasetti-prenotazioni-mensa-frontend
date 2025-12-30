@@ -8,6 +8,7 @@ import type { User, CreateUserRequest, UpdateUserRequest } from '@/api/admin/use
 import { useDebounceFn } from '@vueuse/core'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import { Button } from '@/components/ui/button'
+import Papa from 'papaparse'
 
 const { t } = useI18n()
 const { users, loading, error, fetchUsers, createNewUser, updateExistingUser, removeUser } =
@@ -20,6 +21,9 @@ const userToDelete = ref<User | null>(null)
 const selectedMonth = ref(new Date().getMonth() + 1)
 const selectedYear = ref(new Date().getFullYear())
 const searchQuery = ref('')
+const csvFileInput = ref<HTMLInputElement | null>(null)
+const isUploadingCsv = ref(false)
+const uploadStatus = ref<{ type: 'success' | 'error' | 'info'; message: string } | null>(null)
 
 const handleCreateUser = () => {
   editingUser.value = null
@@ -71,6 +75,150 @@ const searchUsers = useDebounceFn(async () => {
   })
 }, 500)
 
+const handleCsvUpload = () => {
+  csvFileInput.value?.click()
+}
+
+const processCsvFile = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+
+  if (!file) return
+
+  // Reset status
+  uploadStatus.value = null
+  isUploadingCsv.value = true
+
+  try {
+    // Parse CSV using PapaParse with headers
+    const parseResult = await new Promise<Papa.ParseResult<Record<string, string>>>(
+      (resolve, reject) => {
+        Papa.parse<Record<string, string>>(file, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: (header) => header.trim().toLowerCase(),
+          complete: (results) => resolve(results as Papa.ParseResult<Record<string, string>>),
+          error: (error) => reject(error),
+        })
+      },
+    )
+
+    const rows = parseResult.data
+
+    if (rows.length === 0) {
+      uploadStatus.value = {
+        type: 'error',
+        message: t('admin.users.uploadCsvInvalidFormat'),
+      }
+      isUploadingCsv.value = false
+      return
+    }
+
+    // Validate required headers
+    const requiredHeaders = ['username']
+    const firstRow = rows[0]
+    if (!firstRow) {
+      uploadStatus.value = {
+        type: 'error',
+        message: t('admin.users.uploadCsvInvalidFormat'),
+      }
+      isUploadingCsv.value = false
+      return
+    }
+
+    const missingHeaders = requiredHeaders.filter((header) => !(header in firstRow))
+
+    if (missingHeaders.length > 0) {
+      uploadStatus.value = {
+        type: 'error',
+        message: t('admin.users.uploadCsvMissingHeaders', {
+          headers: missingHeaders.join(', '),
+        }),
+      }
+      isUploadingCsv.value = false
+      return
+    }
+
+    // Process each row
+    let successCount = 0
+    let failCount = 0
+    const errors: string[] = []
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]
+      if (!row) {
+        failCount++
+        errors.push(`Row ${i + 2}: Empty row`)
+        continue
+      }
+
+      const username = String(row.username || '')
+        .trim()
+        .toLowerCase()
+      const email = String(row.email || username.split(' ').join('.') + '@francopasetti.it')
+        .trim()
+        .toLowerCase()
+      const password = String(row.password || username.split(' ').join('.')).trim()
+
+      if (!username || !email || !password) {
+        failCount++
+        errors.push(`Row ${i + 2}: Missing required fields`)
+        continue
+      }
+
+      try {
+        await createNewUser({ username, email, password })
+        successCount++
+      } catch (err) {
+        failCount++
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+        errors.push(`Row ${i + 2}: ${errorMessage}`)
+      }
+    }
+
+    // Refresh users list
+    await fetchUsers({ month: selectedMonth.value, year: selectedYear.value })
+
+    // Show status
+    if (failCount === 0) {
+      uploadStatus.value = {
+        type: 'success',
+        message: t('admin.users.uploadCsvSuccess', { count: successCount }),
+      }
+    } else if (successCount > 0) {
+      uploadStatus.value = {
+        type: 'info',
+        message: t('admin.users.uploadCsvPartialSuccess', {
+          success: successCount,
+          total: rows.length,
+          failed: failCount,
+        }),
+      }
+    } else {
+      uploadStatus.value = {
+        type: 'error',
+        message: t('admin.users.uploadCsvError', {
+          error: errors.slice(0, 3).join('; '),
+        }),
+      }
+    }
+
+    // Clear file input
+    if (target) {
+      target.value = ''
+    }
+  } catch (err) {
+    uploadStatus.value = {
+      type: 'error',
+      message: t('admin.users.uploadCsvError', {
+        error: err instanceof Error ? err.message : 'Unknown error',
+      }),
+    }
+  } finally {
+    isUploadingCsv.value = false
+  }
+}
+
 onMounted(async () => {
   await fetchUsers({ month: selectedMonth.value, year: selectedYear.value })
 })
@@ -80,13 +228,37 @@ onMounted(async () => {
   <div class="max-w-7xl mx-auto">
     <div class="mb-6 flex justify-between items-center">
       <h1 class="text-2xl font-bold text-gray-900">{{ t('admin.users.title') }}</h1>
-      <Button @click="handleCreateUser">
-        {{ t('admin.users.createUser') }}
-      </Button>
+      <div class="flex gap-3">
+        <Button @click="handleCsvUpload" variant="secondary" :disabled="isUploadingCsv">
+          {{ isUploadingCsv ? t('admin.users.uploadCsvProcessing') : t('admin.users.uploadCsv') }}
+        </Button>
+        <input
+          ref="csvFileInput"
+          type="file"
+          accept=".csv"
+          class="hidden"
+          @change="processCsvFile"
+        />
+        <Button @click="handleCreateUser">
+          {{ t('admin.users.createUser') }}
+        </Button>
+      </div>
     </div>
 
     <div v-if="error" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
       <p class="text-red-800">{{ error }}</p>
+    </div>
+
+    <div
+      v-if="uploadStatus"
+      :class="{
+        'bg-green-50 border-green-200 text-green-800': uploadStatus.type === 'success',
+        'bg-red-50 border-red-200 text-red-800': uploadStatus.type === 'error',
+        'bg-blue-50 border-blue-200 text-blue-800': uploadStatus.type === 'info',
+      }"
+      class="mb-4 p-4 border rounded-lg"
+    >
+      <p>{{ uploadStatus.message }}</p>
     </div>
 
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-4">

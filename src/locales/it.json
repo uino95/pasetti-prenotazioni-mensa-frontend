@@ -98,7 +98,16 @@
       "searchPlaceholder": "Cerca per username, email o nome...",
       "noUsers": "Nessun utente trovato",
       "passwordRequired": "La password è obbligatoria",
-      "deleteConfirm": "Sei sicuro di voler eliminare l'utente {username}?"
+      "deleteConfirm": "Sei sicuro di voler eliminare l'utente {username}?",
+      "uploadCsv": "Carica CSV",
+      "uploadCsvTitle": "Carica Utenti da CSV",
+      "uploadCsvDescription": "Seleziona un file CSV con le colonne: username, email, password",
+      "uploadCsvProcessing": "Elaborazione in corso...",
+      "uploadCsvSuccess": "Creati {count} utenti con successo",
+      "uploadCsvError": "Errore durante il caricamento: {error}",
+      "uploadCsvPartialSuccess": "Creati {success} utenti su {total}. {failed} falliti.",
+      "uploadCsvInvalidFormat": "Formato CSV non valido. Assicurati che il file contenga le colonne: username, email, password",
+      "uploadCsvMissingHeaders": "Intestazioni mancanti nel CSV: {headers}. Assicurati che il file contenga le colonne: username, email, password"
     },
     "menus": {
       "title": "Gestione Menu",

@@ -17,7 +17,7 @@ const handleLogin = async (identifier: string, password: string) => {
   error.value = null
   try {
     isLoading.value = true
-    await login(identifier, password)
+    await login(identifier.toLowerCase(), password)
     const redirect = (route.query.redirect as string) || '/menu'
     router.push(redirect)
   } catch (err: unknown) {
