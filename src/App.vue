@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { Menu } from 'lucide-vue-next'
+import { Menu, RefreshCcw } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -47,6 +47,10 @@ const handleInstallClick = () => {
     console.log('[App] Dismissal reset complete')
   }, 100)
 }
+
+const reloadPage = () => {
+  window.location.reload()
+}
 </script>
 
 <template>
@@ -56,7 +60,12 @@ const handleInstallClick = () => {
         :class="isAdminRoute ? '' : 'max-w-4xl'"
         class="w-full mx-auto px-4 py-4 flex justify-between items-center"
       >
-        <h1 class="text-xl font-bold text-gray-900">{{ t('app.name') }}</h1>
+        <div class="flex items-center gap-2">
+          <h1 class="text-xl font-bold text-gray-900">{{ t('app.name') }}</h1>
+          <Button variant="ghost" size="sm" @click="reloadPage">
+            <RefreshCcw class="w-5 h-5 text-gray-700" />
+          </Button>
+        </div>
         <!-- Desktop buttons -->
         <div class="hidden md:flex items-center gap-4">
           <Button
