@@ -63,8 +63,8 @@
     "showPrompt": "Mostra il prompt di installazione",
     "waitingMessage": "L'installazione sarà disponibile a breve. Continua a utilizzare l'app per abilitare l'installazione.",
     "manualTitle": "Come installare manualmente:",
-    "manualStep1": "Clicca sull'icona del menu (tre puntini) nella barra degli indirizzi",
-    "manualStep2": "Seleziona 'Installa Prenotazioni Mensa' o 'Installa app'",
+    "manualStep1": "Clicca sull'icona del menu (tre puntini) nella barra degli indirizzi o in basso a destra",
+    "manualStep2": "Seleziona 'Installa Prenotazioni Mensa' o 'Installa app' o 'Aggiungi alla schermata Home'",
     "manualStep3": "Conferma l'installazione nella finestra di dialogo"
   },
   "admin": {

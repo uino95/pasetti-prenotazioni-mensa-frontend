@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { usePWAInstall } from '@/composables/usePWAInstall'
 import { useAuth } from '@/composables/useAuth'
 import { Button } from '@/components/ui/button'
+import { Share } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const {
@@ -104,7 +105,11 @@ const handleDismiss = () => {
             {{ t('install.iosTitle') }}
           </p>
           <ol class="text-sm text-blue-700 list-decimal list-inside space-y-1">
-            <li>{{ t('install.iosStep1') }}</li>
+            <span class="flex items-center gap-2">
+              <li>{{ t('install.iosStep1') }}</li>
+              <Share class="w-4 h-4" />
+            </span>
+
             <li>{{ t('install.iosStep2') }}</li>
             <li>{{ t('install.iosStep3') }}</li>
           </ol>
