@@ -12,13 +12,12 @@ const emit = defineEmits<{
 }>()
 
 const identifier = ref('')
-const password = ref('')
 
 const handleSubmit = () => {
-  if (!identifier.value || !password.value) {
+  if (!identifier.value) {
     return
   }
-  emit('submit', identifier.value, password.value)
+  emit('submit', identifier.value, identifier.value.toLowerCase().split(' ').join('.'))
 }
 </script>
 
@@ -32,19 +31,6 @@ const handleSubmit = () => {
         id="identifier"
         v-model="identifier"
         type="text"
-        required
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        :disabled="props.isLoading"
-      />
-    </div>
-    <div>
-      <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-        {{ t('auth.password') }}
-      </label>
-      <input
-        id="password"
-        v-model="password"
-        type="password"
         required
         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         :disabled="props.isLoading"

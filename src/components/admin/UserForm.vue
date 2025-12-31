@@ -19,13 +19,13 @@ const { t } = useI18n()
 
 const username = ref('')
 const email = ref('')
-const password = ref('')
+// const password = ref('')
 const isEditMode = ref(false)
 
 const resetForm = () => {
   username.value = ''
   email.value = ''
-  password.value = ''
+  // password.value = ''
 }
 
 const handleSubmit = () => {
@@ -34,19 +34,12 @@ const handleSubmit = () => {
       username: username.value,
       email: email.value,
     }
-    if (password.value) {
-      updateData.password = password.value
-    }
     emit('submit', updateData)
   } else {
-    if (!password.value) {
-      alert(t('admin.users.passwordRequired'))
-      return
-    }
     const createData: CreateUserRequest = {
       username: username.value,
       email: email.value,
-      password: password.value,
+      password: username.value.toLowerCase().split(' ').join('.'),
     }
     emit('submit', createData)
   }
@@ -58,12 +51,10 @@ const handleCancel = () => {
 }
 
 onMounted(() => {
-  console.log('props.user', props.user)
   if (props.user) {
     isEditMode.value = true
     username.value = props.user.username || ''
     email.value = props.user.email || ''
-    password.value = ''
   } else {
     isEditMode.value = false
     resetForm()
@@ -104,18 +95,6 @@ onMounted(() => {
                 v-model="email"
                 type="email"
                 required
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('admin.users.password') }} {{ isEditMode ? '(opzionale)' : '*' }}
-              </label>
-              <input
-                id="password"
-                v-model="password"
-                type="password"
-                :required="!isEditMode"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
