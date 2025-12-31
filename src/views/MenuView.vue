@@ -11,7 +11,7 @@ import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import { Button } from '@/components/ui/button'
 
 const { t } = useI18n()
-const { items, deadline, canOrder, loading, error, fetchMenu, menu } = useMenu()
+const { items, deadline, canOrder, loading, error, fetchMenu, menu, timeRemaining } = useMenu()
 const {
   currentOrder,
   loading: orderLoading,
@@ -100,6 +100,7 @@ onMounted(async () => {
 <template>
   <main class="max-w-4xl mx-auto px-4 py-6">
     <DeadlineBanner
+      :time-remaining="timeRemaining"
       :loading="loading"
       :deadline="deadline"
       :can-order="canOrder"

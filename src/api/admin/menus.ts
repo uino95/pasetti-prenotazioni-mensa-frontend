@@ -27,7 +27,7 @@ export interface CreateMenuRequest {
 
 export interface UpdateMenuRequest {
   day?: string
-  deadline?: Deadline
+  deadline?: Date
   items?: string[]
 }
 
@@ -44,6 +44,33 @@ const populateCategories = {
       populate: ['category'],
     },
   },
+}
+
+// Convert UTC time (HH:MM:SS) to local time (HH:MM) for display
+const convertUtcToLocalTime = (utcTime: string, date: Date): Deadline => {
+  const parts = utcTime.split(':').map(Number)
+  const hours = parts[0] ?? 0
+  const minutes = parts[1] ?? 0
+  const utcDate = new Date(date)
+  utcDate.setUTCHours(hours, minutes, 0, 0)
+
+  const localHours = String(utcDate.getHours()).padStart(2, '0')
+  const localMinutes = String(utcDate.getMinutes()).padStart(2, '0')
+  return `${localHours}:${localMinutes}:00` as Deadline
+}
+
+const toUTCTime = (localTime: Date): Deadline => {
+  const utcHours = String(localTime.getUTCHours()).padStart(2, '0')
+  const utcMinutes = String(localTime.getUTCMinutes()).padStart(2, '0')
+  return `${utcHours}:${utcMinutes}:00` as Deadline
+}
+
+const convertMenuDeadlineToLocalTime = (menu: Menu): Menu => {
+  const deadline = convertUtcToLocalTime(menu.deadline, new Date(menu.day))
+  return {
+    ...menu,
+    deadline: deadline,
+  }
 }
 
 export async function getMenus(filters?: MenuFilters): Promise<Menu[]> {
@@ -68,7 +95,7 @@ export async function getMenus(filters?: MenuFilters): Promise<Menu[]> {
 
   const query = qs.stringify(queryParams)
   const response = await apiClient.get<ApiResponse<Menu[]>>(`/api/menus?${query}`)
-  return response.data.data
+  return response.data.data.map(convertMenuDeadlineToLocalTime)
 }
 
 export async function getMenuByDate(date: Date): Promise<Menu | null> {
@@ -91,26 +118,32 @@ export async function getMenuByDate(date: Date): Promise<Menu | null> {
   if (!response.data.data[0]) {
     return null
   }
-  return response.data.data[0]
+  return convertMenuDeadlineToLocalTime(response.data.data[0])
 }
 
 export async function createMenu(data: CreateMenuRequest): Promise<Menu> {
   const query = qs.stringify({
     ...populateCategories,
   })
+  const defaultDeadline = new Date()
+  defaultDeadline.setHours(9, 30, 0, 0)
+
   const response = await apiClient.post<ApiResponse<Menu>>(`/api/menus?${query}`, {
     data: {
       day: data.day,
       items: data.items ? { set: data.items } : undefined,
+      deadline: toUTCTime(defaultDeadline),
     },
   })
-  return response.data.data
+  return convertMenuDeadlineToLocalTime(response.data.data)
 }
 
 export async function updateMenu(menuId: string, data: UpdateMenuRequest): Promise<Menu> {
   const updateData: Record<string, unknown> = {}
   if (data.day !== undefined) updateData.day = data.day
-  if (data.deadline !== undefined) updateData.deadline = data.deadline
+  if (data.deadline !== undefined) {
+    updateData.deadline = toUTCTime(data.deadline)
+  }
   if (data.items !== undefined) {
     updateData.items = { set: data.items }
   }
@@ -121,7 +154,7 @@ export async function updateMenu(menuId: string, data: UpdateMenuRequest): Promi
   const response = await apiClient.put<ApiResponse<Menu>>(`/api/menus/${menuId}?${query}`, {
     data: updateData,
   })
-  return response.data.data
+  return convertMenuDeadlineToLocalTime(response.data.data)
 }
 
 export async function deleteMenu(menuId: string): Promise<void> {
@@ -139,7 +172,7 @@ export async function addMenuItemToMenu(menuId: string, itemId: string): Promise
       },
     },
   })
-  return response.data.data
+  return convertMenuDeadlineToLocalTime(response.data.data)
 }
 
 export async function removeMenuItemFromMenu(menuId: string, itemId: string): Promise<Menu> {
@@ -153,7 +186,7 @@ export async function removeMenuItemFromMenu(menuId: string, itemId: string): Pr
       },
     },
   })
-  return response.data.data
+  return convertMenuDeadlineToLocalTime(response.data.data)
 }
 
 export async function getMenuOfDay(): Promise<Menu> {
@@ -176,5 +209,5 @@ export async function getMenuOfDay(): Promise<Menu> {
   if (!response.data.data[0]) {
     throw new Error('No menu found for today')
   }
-  return response.data.data[0]
+  return convertMenuDeadlineToLocalTime(response.data.data[0])
 }

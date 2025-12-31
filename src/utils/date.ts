@@ -1,5 +1,5 @@
-export function isDeadlinePassed(deadline: string): boolean {
-  const now = new Date()
+export function isDeadlinePassed(deadline: string, now?: Date): boolean {
+  const currentTime = now ?? new Date()
   const [hours, minutes] = deadline.split(':').map(Number)
   const deadlineTime = new Date()
   if (hours === undefined || minutes === undefined) {
@@ -7,11 +7,11 @@ export function isDeadlinePassed(deadline: string): boolean {
   }
   deadlineTime.setHours(hours, minutes, 0, 0)
 
-  return now >= deadlineTime
+  return currentTime >= deadlineTime
 }
 
-export function timeUntilDeadline(deadline: string): string {
-  const now = new Date()
+export function timeUntilDeadline(deadline: string, now?: Date): string {
+  const currentTime = now ?? new Date()
   const [hours, minutes] = deadline.split(':').map(Number)
   const deadlineTime = new Date()
   if (hours === undefined || minutes === undefined) {
@@ -19,7 +19,7 @@ export function timeUntilDeadline(deadline: string): string {
   }
   deadlineTime.setHours(hours, minutes, 0, 0)
 
-  const diff = deadlineTime.getTime() - now.getTime()
+  const diff = deadlineTime.getTime() - currentTime.getTime()
 
   if (diff <= 0) {
     return '0m'

@@ -6,7 +6,6 @@ import { useMenuCsvImport } from '@/composables/useMenuCsvImport'
 import MenuEditor from '@/components/admin/MenuEditor.vue'
 import DatePicker from '@/components/admin/DatePicker.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
-import type { Deadline } from '@/api/admin/menus'
 import { Button } from '@/components/ui/button'
 
 const { t } = useI18n()
@@ -47,27 +46,13 @@ const selectedDateString = computed(() => {
   return selectedDate.value.toISOString().split('T')[0] || null
 })
 
-// Convert UTC time (HH:MM:SS) to local time (HH:MM) for display
-const convertUtcToLocalTime = (utcTime: string, date: Date): string => {
-  const parts = utcTime.split(':').map(Number)
-  const hours = parts[0] ?? 0
-  const minutes = parts[1] ?? 0
-  const utcDate = new Date(date)
-  utcDate.setUTCHours(hours, minutes, 0, 0)
-
-  const localHours = String(utcDate.getHours()).padStart(2, '0')
-  const localMinutes = String(utcDate.getMinutes()).padStart(2, '0')
-  return `${localHours}:${localMinutes}`
-}
-
 const handleDateChange = async (dateString: string) => {
   if (!dateString) return
   const date = new Date(dateString)
   selectedDate.value = date
   await fetchMenuByDate(date)
   if (currentMenu.value?.deadline) {
-    // Convert UTC time from backend to local time for display
-    deadline.value = convertUtcToLocalTime(currentMenu.value.deadline, date)
+    deadline.value = currentMenu.value.deadline
   }
 }
 
@@ -100,20 +85,14 @@ const handleUpdateDeadline = async () => {
   if (!currentMenu.value || !deadline.value || !selectedDate.value) return
 
   try {
-    // Create a date object with the selected date and deadline time in local timezone
     const parts = deadline.value.split(':').map(Number)
     const hours = parts[0] ?? 0
     const minutes = parts[1] ?? 0
     const localDateTime = new Date(selectedDate.value)
     localDateTime.setHours(hours, minutes, 0, 0)
 
-    // Convert to UTC and extract time portion
-    const utcHours = String(localDateTime.getUTCHours()).padStart(2, '0')
-    const utcMinutes = String(localDateTime.getUTCMinutes()).padStart(2, '0')
-    const utcDeadline = `${utcHours}:${utcMinutes}:00` as Deadline
-
     await updateExistingMenu(currentMenu.value.documentId, {
-      deadline: utcDeadline,
+      deadline: localDateTime,
     })
   } catch (err) {
     console.error('Failed to update deadline:', err)
@@ -204,8 +183,7 @@ const cancelMonthSelection = () => {
 onMounted(async () => {
   await Promise.all([fetchAvailableProducts(), fetchMenuByDate(selectedDate.value)])
   if (currentMenu.value?.deadline) {
-    // Convert UTC time from backend to local time for display
-    deadline.value = convertUtcToLocalTime(currentMenu.value.deadline, selectedDate.value)
+    deadline.value = currentMenu.value.deadline
   }
 })
 </script>

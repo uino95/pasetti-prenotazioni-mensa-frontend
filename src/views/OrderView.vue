@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 
 const { t } = useI18n()
 const router = useRouter()
-const { items, deadline, canOrder, fetchMenu } = useMenu()
+const { items, deadline, canOrder, fetchMenu, timeRemaining } = useMenu()
 const {
   currentOrder,
   loading,
@@ -46,6 +46,7 @@ onMounted(async () => {
 <template>
   <main class="max-w-4xl mx-auto px-4 py-6">
     <DeadlineBanner
+      :time-remaining="timeRemaining"
       :loading="loading"
       :deadline="deadline"
       :can-order="canOrder"

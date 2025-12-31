@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, onUnmounted, getCurrentInstance, watch } from 'vue'
 import { getMenuOfDay, type MenuItem } from '@/api/admin/menus'
 import { isDeadlinePassed, timeUntilDeadline } from '@/utils/date'
 import { AxiosError } from 'axios'
@@ -11,15 +11,53 @@ export function useMenu() {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const canOrder = computed(() => {
-    if (!deadline.value) return false
-    return !isDeadlinePassed(deadline.value)
-  })
+  // Refs that will be updated by the interval
+  const canOrder = ref(false)
+  const timeRemaining = ref('')
 
-  const timeRemaining = computed(() => {
-    if (!deadline.value) return ''
-    return timeUntilDeadline(deadline.value)
-  })
+  // Function to update canOrder and timeRemaining based on current time
+  const updateDeadlineValues = () => {
+    if (!deadline.value) {
+      canOrder.value = false
+      timeRemaining.value = ''
+      return
+    }
+
+    const currentTime = new Date()
+    canOrder.value = !isDeadlinePassed(deadline.value, currentTime)
+    timeRemaining.value = timeUntilDeadline(deadline.value, currentTime)
+  }
+
+  // Set up interval to update values every second
+  let intervalId: ReturnType<typeof setInterval> | null = null
+
+  const instance = getCurrentInstance()
+  if (instance) {
+    intervalId = setInterval(() => {
+      updateDeadlineValues()
+    }, 1000)
+
+    onUnmounted(() => {
+      if (intervalId) {
+        clearInterval(intervalId)
+        intervalId = null
+      }
+    })
+  } else {
+    // Fallback for non-component usage
+    intervalId = setInterval(() => {
+      updateDeadlineValues()
+    }, 1000)
+  }
+
+  // Watch deadline changes and update immediately
+  watch(
+    deadline,
+    () => {
+      updateDeadlineValues()
+    },
+    { immediate: true },
+  )
 
   const fetchMenu = async () => {
     loading.value = true

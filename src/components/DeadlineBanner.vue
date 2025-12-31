@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { timeUntilDeadline } from '@/utils/date'
 import SkeletonLoader from './SkeletonLoader.vue'
 import { Button } from '@/components/ui/button'
 
@@ -11,16 +10,12 @@ const router = useRouter()
 
 const props = defineProps<{
   canOrder: boolean
+  timeRemaining: string
   deadline?: string
   loading?: boolean
   hasOrder?: boolean
   showOrderLink?: boolean
 }>()
-
-const timeRemaining = computed(() => {
-  if (!props.deadline) return ''
-  return timeUntilDeadline(props.deadline)
-})
 
 const bannerClass = computed(() => {
   if (props.canOrder) {
