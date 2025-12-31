@@ -17,7 +17,11 @@ const handleSubmit = () => {
   if (!identifier.value) {
     return
   }
-  emit('submit', identifier.value, identifier.value.toLowerCase().split(' ').join('.'))
+  emit(
+    'submit',
+    identifier.value.trim(),
+    identifier.value.trim().toLowerCase().split(' ').join('.'),
+  )
 }
 </script>
 
