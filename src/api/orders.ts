@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios'
 import apiClient, { type ApiResponse } from './client'
 import qs from 'qs'
+import type { User } from './admin/users'
 
 export interface OrderItem {
   documentId: string
@@ -11,6 +12,7 @@ export interface Order {
   items: OrderItem[]
   note: string | null
   createdAt: string
+  user?: User
 }
 
 export interface PlaceOrderRequest {
@@ -25,7 +27,10 @@ export interface UpdateOrderRequest {
   note?: string
 }
 
-export async function getCurrentOrder(userId: string): Promise<Order | null> {
+export async function getCurrentOrder(
+  userId: string,
+  populateUser: boolean = false,
+): Promise<Order | null> {
   const today = new Date()
   const startOfDay = new Date(today.setHours(0, 0, 0, 0))
   const endOfDay = new Date(today.setHours(23, 59, 59, 999))
@@ -36,6 +41,7 @@ export async function getCurrentOrder(userId: string): Promise<Order | null> {
     },
     populate: {
       items: true,
+      ...(populateUser ? { user: true } : {}),
     },
   })
   try {

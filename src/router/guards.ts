@@ -43,3 +43,18 @@ export function adminGuard(
     next()
   }
 }
+
+export function guestAreaGuard(
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext,
+) {
+  const authStore = useAuthStore()
+  if (!authStore.isAuthenticated) {
+    next({ name: 'login', query: { redirect: to.fullPath } })
+  } else if (!authStore.user?.canInviteGuest) {
+    next({ name: 'order' })
+  } else {
+    next()
+  }
+}

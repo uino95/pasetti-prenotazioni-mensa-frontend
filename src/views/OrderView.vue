@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import DeadlineBanner from '@/components/DeadlineBanner.vue'
 import { useMenu } from '@/composables/useMenu'
@@ -8,9 +8,12 @@ import { useOrder } from '@/composables/useOrder'
 import type { MenuItem } from '@/api/admin/menus'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import { Button } from '@/components/ui/button'
+import type { User } from '@/api/admin/users'
 
 const { t } = useI18n()
+const route = useRoute()
 const router = useRouter()
+const guestId = typeof route.params.guestId === 'string' ? route.params.guestId : null
 const { items, deadline, canOrder, fetchMenu, timeRemaining } = useMenu()
 const {
   currentOrder,
@@ -18,9 +21,10 @@ const {
   error: orderError,
   canEdit,
   fetchCurrentOrder,
-} = useOrder(() => canOrder.value)
+} = useOrder(() => canOrder.value, guestId)
 
 const selectedItems = ref<MenuItem[]>([])
+const currentGuest = ref<User | null>(null)
 
 const initializeSelectedItems = () => {
   if (items.value.length === 0 || !currentOrder.value) return
@@ -29,12 +33,26 @@ const initializeSelectedItems = () => {
   selectedItems.value = items.value.filter((item) => orderItemIds.includes(item.documentId))
 }
 
+const populateCurrentOrder = async () => {
+  if (guestId) {
+    await fetchCurrentOrder(true)
+    currentGuest.value = currentOrder.value?.user ?? null
+  } else {
+    await fetchCurrentOrder(false)
+  }
+}
+
 const handleEditOrder = () => {
-  router.push({ name: 'menu' })
+  if (guestId) {
+    router.push({ name: 'guest-menu', params: { guestId } })
+  } else {
+    router.push({ name: 'menu' })
+  }
 }
 
 const init = async () => {
-  await Promise.all([fetchMenu(), fetchCurrentOrder()])
+  currentGuest.value = null
+  await Promise.all([fetchMenu(), populateCurrentOrder()])
   initializeSelectedItems()
 }
 
@@ -61,7 +79,7 @@ onMounted(async () => {
     <div class="bg-white rounded-lg shadow-sm p-6">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-bold text-gray-900">
-          {{ t('order.title') }}
+          {{ guestId ? t('order.guestTitle', { name: currentGuest?.username }) : t('order.title') }}
         </h2>
         <Button v-if="canEdit && currentOrder && !loading" @click="handleEditOrder">
           {{ t('order.editOrder') }}
@@ -74,7 +92,14 @@ onMounted(async () => {
 
       <div v-else-if="!currentOrder" class="text-center py-8">
         <p class="text-gray-600 mb-4">{{ t('order.noOrder') }}</p>
-        <Button v-if="canOrder" @click="router.push({ name: 'menu' })">
+        <Button
+          v-if="canOrder"
+          @click="
+            guestId
+              ? router.push({ name: 'guest-menu', params: { guestId } })
+              : router.push({ name: 'menu' })
+          "
+        >
           {{ t('menu.title') }}
         </Button>
         <Button v-else @click="init">{{ t('menu.update') }}</Button>

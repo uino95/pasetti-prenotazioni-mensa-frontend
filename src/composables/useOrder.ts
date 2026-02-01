@@ -10,24 +10,26 @@ import {
 import { useAuthStore } from '@/stores/auth'
 import { AxiosError } from 'axios'
 
-export function useOrder(canOrderFromMenu: () => boolean) {
+export function useOrder(canOrderFromMenu: () => boolean, overrideUserId: string | null = null) {
   const authStore = useAuthStore()
   const currentOrder = ref<Order | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
+  const effectiveUserId = overrideUserId ?? authStore.user?.documentId ?? null
+
   const canEdit = computed(() => {
     return canOrderFromMenu()
   })
 
-  const fetchCurrentOrder = async () => {
-    if (!authStore.user?.documentId) {
+  const fetchCurrentOrder = async (populateUser: boolean = false) => {
+    if (!effectiveUserId) {
       return
     }
     loading.value = true
     error.value = null
     try {
-      currentOrder.value = await getCurrentOrder(authStore.user.documentId)
+      currentOrder.value = await getCurrentOrder(effectiveUserId, populateUser)
     } catch (err: unknown) {
       if (err instanceof AxiosError && err.response?.status === 404) {
         currentOrder.value = null
@@ -40,14 +42,14 @@ export function useOrder(canOrderFromMenu: () => boolean) {
   }
 
   const placeOrder = async (itemIds: string[], menuId: string, note?: string) => {
-    if (!authStore.user?.documentId) {
+    if (!effectiveUserId) {
       return
     }
     loading.value = true
     error.value = null
     try {
       const request: PlaceOrderRequest = {
-        userId: authStore.user.documentId,
+        userId: effectiveUserId,
         menuId: menuId,
         items: itemIds,
         note: note || undefined,

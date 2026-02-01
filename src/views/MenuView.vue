@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import MenuCard from '@/components/MenuCard.vue'
 import DeadlineBanner from '@/components/DeadlineBanner.vue'
@@ -11,6 +12,8 @@ import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import { Button } from '@/components/ui/button'
 
 const { t } = useI18n()
+const route = useRoute()
+const guestId = typeof route.params.guestId === 'string' ? route.params.guestId : null
 const { items, deadline, canOrder, loading, error, fetchMenu, menu, timeRemaining } = useMenu()
 const {
   currentOrder,
@@ -19,7 +22,7 @@ const {
   fetchCurrentOrder,
   placeOrder,
   updateOrder,
-} = useOrder(() => canOrder.value)
+} = useOrder(() => canOrder.value, guestId)
 
 const selectedItems = ref<MenuItem[]>([])
 const note = ref<string>('')
@@ -80,7 +83,11 @@ const handlePlaceOrder = async () => {
     } else {
       await placeOrder(selectedItemIds.value, menu.value.documentId, note.value)
     }
-    router.push({ name: 'order' })
+    if (guestId) {
+      router.push({ name: 'guest-order', params: { guestId } })
+    } else {
+      router.push({ name: 'order' })
+    }
   } catch (err) {
     console.error(err)
     // Error is handled by the store/composable

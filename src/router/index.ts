@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { authGuard, loginGuard, adminGuard } from './guards'
+import { authGuard, loginGuard, adminGuard, guestAreaGuard } from './guards'
 import { useRouterLoading } from '@/composables/useRouterLoading'
 
 const router = createRouter({
@@ -22,6 +22,24 @@ const router = createRouter({
       name: 'order',
       component: () => import('@/views/OrderView.vue'),
       beforeEnter: authGuard,
+    },
+    {
+      path: '/guests',
+      name: 'guests',
+      component: () => import('@/views/GuestsView.vue'),
+      beforeEnter: guestAreaGuard,
+    },
+    {
+      path: '/guests/:guestId/menu',
+      name: 'guest-menu',
+      component: () => import('@/views/MenuView.vue'),
+      beforeEnter: guestAreaGuard,
+    },
+    {
+      path: '/guests/:guestId/order',
+      name: 'guest-order',
+      component: () => import('@/views/OrderView.vue'),
+      beforeEnter: guestAreaGuard,
     },
     {
       path: '/admin',

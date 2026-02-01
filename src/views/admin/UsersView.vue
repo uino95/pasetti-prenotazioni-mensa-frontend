@@ -4,7 +4,12 @@ import { useI18n } from 'vue-i18n'
 import { useAdminUsers } from '@/composables/useAdminUsers'
 import UserForm from '@/components/admin/UserForm.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
-import { type User, type CreateUserRequest, type UpdateUserRequest, getUsers } from '@/api/admin/users'
+import {
+  type User,
+  type CreateUserRequest,
+  type UpdateUserRequest,
+  getUsers,
+} from '@/api/admin/users'
 import { useDebounceFn } from '@vueuse/core'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import { Button } from '@/components/ui/button'
@@ -23,6 +28,15 @@ const userToDelete = ref<User | null>(null)
 const selectedMonth = ref(new Date().getMonth())
 const selectedYear = ref(new Date().getFullYear())
 const searchQuery = ref('')
+
+type UserFilterType = 'users' | 'guests' | 'both'
+const userFilterType = ref<UserFilterType>('users')
+
+function getIsGuestFilter(): boolean | undefined {
+  if (userFilterType.value === 'guests') return true
+  if (userFilterType.value === 'users') return false
+  return undefined
+}
 const csvFileInput = ref<HTMLInputElement | null>(null)
 const isUploadingCsv = ref(false)
 const uploadStatus = ref<{ type: 'success' | 'error' | 'info'; message: string } | null>(null)
@@ -76,8 +90,18 @@ const searchUsers = useDebounceFn(async () => {
     month: selectedMonth.value,
     year: selectedYear.value,
     search: searchQuery.value,
+    isGuest: getIsGuestFilter(),
   })
 }, 500)
+
+async function onFilterTypeChange() {
+  await fetchUsers({
+    month: selectedMonth.value,
+    year: selectedYear.value,
+    search: searchQuery.value,
+    isGuest: getIsGuestFilter(),
+  })
+}
 
 const handleCsvUpload = () => {
   csvFileInput.value?.click()
@@ -181,7 +205,11 @@ const processCsvFile = async (event: Event) => {
     }
 
     // Refresh users list
-    await fetchUsers({ month: selectedMonth.value, year: selectedYear.value })
+    await fetchUsers({
+      month: selectedMonth.value,
+      year: selectedYear.value,
+      isGuest: getIsGuestFilter(),
+    })
 
     // Show status
     if (failCount === 0) {
@@ -243,23 +271,39 @@ const confirmExport = async (data: { year: number; month: number }) => {
       year: data.year,
     })
 
-    // Convert to Excel format
+    // Sort by type (users first, then guests), then by username
+    const sorted = [...usersWithOrders].sort((a, b) => {
+      const aIsGuest = a.isGuest === true ? 1 : 0
+      const bIsGuest = b.isGuest === true ? 1 : 0
+      if (aIsGuest !== bIsGuest) return aIsGuest - bIsGuest
+      return a.username.localeCompare(b.username)
+    })
+
+    // Convert to Excel format: users first, separator row, then guests
     const worksheetData: Array<Record<string, unknown>> = []
     const totalOrders = usersWithOrders.reduce((acc, user) => acc + (user.orders?.count || 0), 0)
 
-    for (const userData of usersWithOrders) {
+    const usersOnly = sorted.filter((u) => u.isGuest !== true && u.orders?.count > 0)
+    const guestsOnly = sorted.filter((u) => u.isGuest === true && u.orders?.count > 0)
+
+    for (const userData of usersOnly) {
+      worksheetData.push({
+        Username: userData.username,
+        Ordini: userData.orders?.count || 0,
+      })
+    }
+    // Separator row between users and guests
+    if (guestsOnly.length > 0) {
+      worksheetData.push({ Username: '', Ordini: '' })
+      worksheetData.push({ Username: '--- Ospiti ---', Ordini: '' })
+      worksheetData.push({ Username: '', Ordini: '' })
+      for (const userData of guestsOnly) {
         worksheetData.push({
           Username: userData.username,
           Ordini: userData.orders?.count || 0,
         })
+      }
     }
-
-    // Sort by username, then by date
-    worksheetData.sort((a, b) => {
-      const usernameCompare = String(a.Username).localeCompare(String(b.Username))
-      if (usernameCompare !== 0) return usernameCompare
-      return String(a.Data).localeCompare(String(b.Data))
-    })
 
     // Add empty row
     worksheetData.push({
@@ -318,7 +362,11 @@ const confirmExport = async (data: { year: number; month: number }) => {
 }
 
 onMounted(async () => {
-  await fetchUsers({ month: selectedMonth.value, year: selectedYear.value })
+  await fetchUsers({
+    month: selectedMonth.value,
+    year: selectedYear.value,
+    isGuest: getIsGuestFilter(),
+  })
 })
 </script>
 
@@ -360,51 +408,71 @@ onMounted(async () => {
     </div>
 
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-4">
-      <div class="flex gap-4 items-end">
-        <div class="flex-1">
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            {{ t('admin.search') }}
-          </label>
-          <input
-            v-model="searchQuery"
-            @input="searchUsers"
-            type="text"
-            :placeholder="t('admin.users.searchPlaceholder')"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
+      <div class="flex-1">
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          {{ t('admin.search') }}
+        </label>
+        <input
+          v-model="searchQuery"
+          @input="searchUsers"
+          type="text"
+          :placeholder="t('admin.users.searchPlaceholder')"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </div>
+      <div class="flex gap-4 items-end mt-4 justify-between">
+        <div class="flex gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ t('admin.users.month') }}
+            </label>
+            <select
+              v-model="selectedMonth"
+              class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option v-for="month in 12" :key="month" :value="month - 1">{{ month }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ t('admin.users.year') }}
+            </label>
+            <input
+              v-model.number="selectedYear"
+              type="number"
+              min="2020"
+              :max="new Date().getFullYear() + 1"
+              class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-32"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ t('admin.users.filterType') }}
+            </label>
+            <select
+              v-model="userFilterType"
+              @change="onFilterTypeChange"
+              class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="users">{{ t('admin.users.filterShowUsers') }}</option>
+              <option value="guests">{{ t('admin.users.filterShowGuests') }}</option>
+              <option value="both">{{ t('admin.users.filterShowBoth') }}</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            {{ t('admin.users.month') }}
-          </label>
-          <select
-            v-model="selectedMonth"
-            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        <div class="flex gap-4">
+          <Button
+            @click="
+              fetchUsers({ month: selectedMonth, year: selectedYear, isGuest: getIsGuestFilter() })
+            "
+            variant="secondary"
           >
-            <option v-for="month in 12" :key="month" :value="month - 1">{{ month }}</option>
-          </select>
+            {{ t('admin.users.refreshCounts') }}
+          </Button>
+          <Button @click="handleExportClick" variant="secondary" :disabled="isExporting">
+            {{ isExporting ? t('admin.users.exporting') : t('admin.users.exportOrders') }}
+          </Button>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            {{ t('admin.users.year') }}
-          </label>
-          <input
-            v-model.number="selectedYear"
-            type="number"
-            min="2020"
-            :max="new Date().getFullYear() + 1"
-            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-32"
-          />
-        </div>
-        <Button
-          @click="fetchUsers({ month: selectedMonth, year: selectedYear })"
-          variant="secondary"
-        >
-          {{ t('admin.users.refreshCounts') }}
-        </Button>
-        <Button @click="handleExportClick" variant="secondary" :disabled="isExporting">
-          {{ isExporting ? t('admin.users.exporting') : t('admin.users.exportOrders') }}
-        </Button>
       </div>
     </div>
 
@@ -420,11 +488,6 @@ onMounted(async () => {
               class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
               {{ t('admin.users.username') }}
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              {{ t('admin.users.email') }}
             </th>
             <th
               class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -453,9 +516,6 @@ onMounted(async () => {
             <tr v-for="user in users" :key="user.id" class="hover:bg-gray-50">
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {{ user.username }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                {{ user.email }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                 {{ user.orders?.count || 0 }}
@@ -498,7 +558,7 @@ onMounted(async () => {
       "
     />
 
-   <MonthSelectorDialog
+    <MonthSelectorDialog
       :show="showExportDialog"
       :is-loading="isExporting"
       :description="t('admin.users.selectExportMonthDescription')"

@@ -20,14 +20,17 @@ import { Menu, RefreshCcw } from 'lucide-vue-next'
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const { isAuthenticated, logout } = useAuth()
+const { isAuthenticated, logout, user } = useAuth()
 const { isInstallable, isInstalled, resetDismiss } = usePWAInstall()
 const { isLoading, routeKey, hideView } = useRouterLoading()
 const userIsAdmin = computed(() => isAdmin())
+const canInviteGuest = computed(() => !!user.value?.canInviteGuest)
 
 const isAdminRoute = computed(() => {
   return route.path.startsWith('/admin')
 })
+
+const isGuestMode = computed(() => route.path.startsWith('/guests'))
 
 const showHeader = computed(() => {
   return isAuthenticated.value && route.name !== 'login'
@@ -69,6 +72,14 @@ const reloadPage = () => {
         <!-- Desktop buttons -->
         <div class="hidden md:flex items-center gap-4">
           <Button
+            v-if="canInviteGuest && !isAdminRoute"
+            @click="router.push('/guests')"
+            variant="ghost"
+            size="sm"
+          >
+            {{ t('guests.headerButton') }}
+          </Button>
+          <Button
             v-if="userIsAdmin"
             @click="router.push(isAdminRoute ? '/' : '/admin')"
             variant="ghost"
@@ -106,6 +117,13 @@ const reloadPage = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" class="w-48">
             <DropdownMenuItem
+              v-if="canInviteGuest && !isAdminRoute"
+              @click="router.push('/guests')"
+              class="text-sm text-blue-600 cursor-pointer"
+            >
+              {{ t('guests.headerButton') }}
+            </DropdownMenuItem>
+            <DropdownMenuItem
               v-if="userIsAdmin"
               @click="router.push(isAdminRoute ? '/' : '/admin')"
               class="text-sm text-blue-600 cursor-pointer"
@@ -132,6 +150,30 @@ const reloadPage = () => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+      </div>
+      <!-- Guest mode indicator -->
+      <div
+        v-if="isGuestMode"
+        class="bg-amber-50 border-b border-amber-200 px-4 py-2 flex flex-wrap items-center justify-center gap-4 text-sm"
+      >
+        <span class="font-medium text-amber-800">{{ t('guests.modeIndicator') }}</span>
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            class="text-amber-700 underline hover:text-amber-900"
+            @click="router.push('/guests')"
+          >
+            {{ t('guests.backToGuests') }}
+          </button>
+          <span class="text-amber-400">|</span>
+          <button
+            type="button"
+            class="text-amber-700 underline hover:text-amber-900"
+            @click="router.push('/order')"
+          >
+            {{ t('guests.myView') }}
+          </button>
+        </div>
       </div>
     </header>
     <RouterLoading v-if="isLoading" />

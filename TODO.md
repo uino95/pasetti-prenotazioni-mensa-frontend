@@ -7,13 +7,9 @@
 
 Mancano
 
-- ordinare per il giorno dopo dalle 2 in poi ? 
+- ordinare per il giorno dopo dalle 2 in poi ?
 - fare accesso per cucinca di modo da fargli modificare solo il menu e vedere la lista degli ordini fatti
 - aggiungere possibilità di cancellare ordine
-- fare modalità ospite che mi deve permettere di prenotare per più ospiti
-- export degli utenti con il numero di ordini fatti per il mese
 - rimuovere email utente, la popoliamo in automatico come facciamo per la password
 
 - togliere publish/draft ?
-
-
