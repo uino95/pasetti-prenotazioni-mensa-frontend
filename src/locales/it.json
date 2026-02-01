@@ -107,7 +107,13 @@
       "uploadCsvError": "Errore durante il caricamento: {error}",
       "uploadCsvPartialSuccess": "Creati {success} utenti su {total}. {failed} falliti.",
       "uploadCsvInvalidFormat": "Formato CSV non valido. Assicurati che il file contenga le colonne: username, email, password",
-      "uploadCsvMissingHeaders": "Intestazioni mancanti nel CSV: {headers}. Assicurati che il file contenga le colonne: username, email, password"
+      "uploadCsvMissingHeaders": "Intestazioni mancanti nel CSV: {headers}. Assicurati che il file contenga le colonne: username, email, password",
+      "exportOrders": "Esporta Ordini",
+      "exporting": "Esportazione in corso...",
+      "selectExportMonth": "Seleziona Mese per Esportazione",
+      "selectExportMonthDescription": "Scegli l'anno e il mese per cui esportare gli ordini:",
+      "exportSuccess": "Esportazione completata! File {filename} scaricato con {count} ordini.",
+      "exportError": "Errore durante l'esportazione: {error}"
     },
     "menus": {
       "title": "Gestione Menu",

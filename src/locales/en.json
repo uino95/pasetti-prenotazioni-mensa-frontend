@@ -107,7 +107,13 @@
       "uploadCsvError": "Error during upload: {error}",
       "uploadCsvPartialSuccess": "Created {success} users out of {total}. {failed} failed.",
       "uploadCsvInvalidFormat": "Invalid CSV format. Make sure the file contains columns: username, email, password",
-      "uploadCsvMissingHeaders": "Missing headers in CSV: {headers}. Make sure the file contains columns: username, email, password"
+      "uploadCsvMissingHeaders": "Missing headers in CSV: {headers}. Make sure the file contains columns: username, email, password",
+      "exportOrders": "Export Orders",
+      "exporting": "Exporting...",
+      "selectExportMonth": "Select Month for Export",
+      "selectExportMonthDescription": "Choose the year and month to export orders for:",
+      "exportSuccess": "Export completed! File {filename} downloaded with {count} orders.",
+      "exportError": "Error during export: {error}"
     },
     "menus": {
       "title": "Menu Management",

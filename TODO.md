@@ -3,14 +3,17 @@
 5 ore domenica 8
 5 ore domenica 14
 4 ore lunedì 30
+4 ore mercoledì 31
 
 Mancano
 
+- ordinare per il giorno dopo dalle 2 in poi ? 
+- fare accesso per cucinca di modo da fargli modificare solo il menu e vedere la lista degli ordini fatti
+- aggiungere possibilità di cancellare ordine
 - fare modalità ospite che mi deve permettere di prenotare per più ospiti
-- guardare cosa succede su safari
+- export degli utenti con il numero di ordini fatti per il mese
+- rimuovere email utente, la popoliamo in automatico come facciamo per la password
 
 - togliere publish/draft ?
-- export per singolo utente con il numero di ordini fatti per il mese
-- capire se si pò rimuovere email utente come obbligatorio
 
-Stima altre 5 ore
+

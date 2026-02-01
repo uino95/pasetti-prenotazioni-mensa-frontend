@@ -50,8 +50,8 @@ export async function getUsers(filters?: UserFilters): Promise<UserWithOrderCoun
         count: true,
         filters: {
           createdAt: {
-            $gte: new Date(filters.year, filters.month - 1, 1).toISOString(),
-            $lte: new Date(filters.year, filters.month, 0, 23, 59, 59, 999).toISOString(),
+            $gte: new Date(filters.year, filters.month, 1).toISOString(),
+            $lte: new Date(filters.year, filters.month + 1, 0, 23, 59, 59, 999).toISOString(),
           },
         },
       },

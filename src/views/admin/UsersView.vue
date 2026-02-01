@@ -4,11 +4,13 @@ import { useI18n } from 'vue-i18n'
 import { useAdminUsers } from '@/composables/useAdminUsers'
 import UserForm from '@/components/admin/UserForm.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
-import type { User, CreateUserRequest, UpdateUserRequest } from '@/api/admin/users'
+import { type User, type CreateUserRequest, type UpdateUserRequest, getUsers } from '@/api/admin/users'
 import { useDebounceFn } from '@vueuse/core'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import { Button } from '@/components/ui/button'
 import Papa from 'papaparse'
+import * as XLSX from 'xlsx'
+import MonthSelectorDialog from '@/components/admin/MonthSelectorDialog.vue'
 
 const { t } = useI18n()
 const { users, loading, error, fetchUsers, createNewUser, updateExistingUser, removeUser } =
@@ -18,12 +20,14 @@ const showUserForm = ref(false)
 const editingUser = ref<User | null>(null)
 const showDeleteDialog = ref(false)
 const userToDelete = ref<User | null>(null)
-const selectedMonth = ref(new Date().getMonth() + 1)
+const selectedMonth = ref(new Date().getMonth())
 const selectedYear = ref(new Date().getFullYear())
 const searchQuery = ref('')
 const csvFileInput = ref<HTMLInputElement | null>(null)
 const isUploadingCsv = ref(false)
 const uploadStatus = ref<{ type: 'success' | 'error' | 'info'; message: string } | null>(null)
+const showExportDialog = ref(false)
+const isExporting = ref(false)
 
 const handleCreateUser = () => {
   editingUser.value = null
@@ -219,6 +223,100 @@ const processCsvFile = async (event: Event) => {
   }
 }
 
+const handleExportClick = () => {
+  showExportDialog.value = true
+}
+
+const cancelExport = () => {
+  showExportDialog.value = false
+}
+
+const confirmExport = async (data: { year: number; month: number }) => {
+  if (isExporting.value) return
+
+  showExportDialog.value = false
+  isExporting.value = true
+
+  try {
+    const usersWithOrders = await getUsers({
+      month: data.month,
+      year: data.year,
+    })
+
+    // Convert to Excel format
+    const worksheetData: Array<Record<string, unknown>> = []
+    const totalOrders = usersWithOrders.reduce((acc, user) => acc + (user.orders?.count || 0), 0)
+
+    for (const userData of usersWithOrders) {
+        worksheetData.push({
+          Username: userData.username,
+          Ordini: userData.orders?.count || 0,
+        })
+    }
+
+    // Sort by username, then by date
+    worksheetData.sort((a, b) => {
+      const usernameCompare = String(a.Username).localeCompare(String(b.Username))
+      if (usernameCompare !== 0) return usernameCompare
+      return String(a.Data).localeCompare(String(b.Data))
+    })
+
+    // Add empty row
+    worksheetData.push({
+      Username: '',
+      Ordini: '',
+    })
+
+    worksheetData.push({
+      Username: 'Totale',
+      Ordini: totalOrders,
+    })
+
+    // Create workbook and worksheet
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Ordini')
+
+    // Generate filename
+    const monthNames = [
+      'Gennaio',
+      'Febbraio',
+      'Marzo',
+      'Aprile',
+      'Maggio',
+      'Giugno',
+      'Luglio',
+      'Agosto',
+      'Settembre',
+      'Ottobre',
+      'Novembre',
+      'Dicembre',
+    ]
+    const monthName = monthNames[data.month]
+    const filename = `Ordini_${monthName}_${data.year}.xlsx`
+
+    // Download file
+    XLSX.writeFile(workbook, filename)
+
+    uploadStatus.value = {
+      type: 'success',
+      message: t('admin.users.exportSuccess', {
+        filename,
+        count: totalOrders,
+      }),
+    }
+  } catch (err) {
+    uploadStatus.value = {
+      type: 'error',
+      message: t('admin.users.exportError', {
+        error: err instanceof Error ? err.message : 'Unknown error',
+      }),
+    }
+  } finally {
+    isExporting.value = false
+  }
+}
+
 onMounted(async () => {
   await fetchUsers({ month: selectedMonth.value, year: selectedYear.value })
 })
@@ -283,7 +381,7 @@ onMounted(async () => {
             v-model="selectedMonth"
             class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option v-for="month in 12" :key="month" :value="month">{{ month }}</option>
+            <option v-for="month in 12" :key="month" :value="month - 1">{{ month }}</option>
           </select>
         </div>
         <div>
@@ -303,6 +401,9 @@ onMounted(async () => {
           variant="secondary"
         >
           {{ t('admin.users.refreshCounts') }}
+        </Button>
+        <Button @click="handleExportClick" variant="secondary" :disabled="isExporting">
+          {{ isExporting ? t('admin.users.exporting') : t('admin.users.exportOrders') }}
         </Button>
       </div>
     </div>
@@ -395,6 +496,14 @@ onMounted(async () => {
           userToDelete = null
         }
       "
+    />
+
+   <MonthSelectorDialog
+      :show="showExportDialog"
+      :is-loading="isExporting"
+      :description="t('admin.users.selectExportMonthDescription')"
+      @confirm="confirmExport"
+      @cancel="cancelExport"
     />
   </div>
 </template>
