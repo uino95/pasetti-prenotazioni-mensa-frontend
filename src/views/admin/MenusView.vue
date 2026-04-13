@@ -33,8 +33,6 @@ const csvFileInputRef = ref<HTMLInputElement | null>(null)
 const csvImportSuccess = ref<string | null>(null)
 const showMonthDialog = ref(false)
 const selectedCsvFile = ref<File | null>(null)
-const selectedYear = ref<number>(new Date().getFullYear())
-const selectedMonth = ref<number>(new Date().getMonth())
 
 const {
   loading: csvLoading,
@@ -140,9 +138,6 @@ const handleCsvFileChange = (event: Event) => {
 
   // Store the file and show month selection dialog
   selectedCsvFile.value = file
-  const now = new Date()
-  selectedYear.value = now.getFullYear()
-  selectedMonth.value = now.getMonth()
   showMonthDialog.value = true
 
   // Reset file input so the same file can be selected again
@@ -151,18 +146,14 @@ const handleCsvFileChange = (event: Event) => {
   }
 }
 
-const confirmMonthSelection = async () => {
+const confirmMonthSelection = async (data: { year: number; month: number }) => {
   if (!selectedCsvFile.value) return
 
   showMonthDialog.value = false
   csvImportSuccess.value = null
 
   try {
-    const result = await importCsvFile(
-      selectedCsvFile.value,
-      selectedYear.value,
-      selectedMonth.value,
-    )
+    const result = await importCsvFile(selectedCsvFile.value, data.year, data.month)
     csvImportSuccess.value = t('admin.menus.csvImportSuccess', {
       products: result.productsCreated,
       menus: result.menusCreated,

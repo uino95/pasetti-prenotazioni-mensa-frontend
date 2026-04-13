@@ -9,6 +9,7 @@ interface CsvRow {
   secondo?: string
   contorno?: string
   dessert?: string
+  acqua?: string
 }
 
 // Map Italian day names to day of week (0 = Sunday, 1 = Monday, etc.)
@@ -28,6 +29,7 @@ const CATEGORY_MAP: Record<string, string> = {
   secondo: 'Secondo',
   contorno: 'Contorno',
   dessert: 'Dessert',
+  acqua: 'Acqua',
 }
 
 export function useMenuCsvImport() {
@@ -70,6 +72,7 @@ export function useMenuCsvImport() {
     const secondoIndex = headers.findIndex((h: string) => h === 'secondo')
     const contornoIndex = headers.findIndex((h: string) => h === 'contorno')
     const dessertIndex = headers.findIndex((h: string) => h === 'dessert')
+    const acquaIndex = headers.findIndex((h: string) => h === 'acqua')
 
     const rows: CsvRow[] = []
     let currentDay: string | undefined
@@ -84,7 +87,7 @@ export function useMenuCsvImport() {
       currentDay = dayValue.toLowerCase()
 
       // Skip rows without a current day set or without data
-      const hasData = [primoIndex, secondoIndex, contornoIndex, dessertIndex].some(
+      const hasData = [primoIndex, secondoIndex, contornoIndex, dessertIndex, acquaIndex].some(
         (idx) => idx >= 0 && idx < row.length && row[idx] && row[idx].trim(),
       )
 
@@ -98,6 +101,7 @@ export function useMenuCsvImport() {
         secondo: secondoIndex >= 0 && row[secondoIndex] ? row[secondoIndex].trim() : undefined,
         contorno: contornoIndex >= 0 && row[contornoIndex] ? row[contornoIndex].trim() : undefined,
         dessert: dessertIndex >= 0 && row[dessertIndex] ? row[dessertIndex].trim() : undefined,
+        acqua: acquaIndex >= 0 && row[acquaIndex] ? row[acquaIndex].trim() : undefined,
       })
     }
 
@@ -133,6 +137,9 @@ export function useMenuCsvImport() {
       }
       if (row.dessert && row.dessert.trim()) {
         items.push({ name: row.dessert.trim(), categoryName: 'Dessert' })
+      }
+      if (row.acqua && row.acqua.trim()) {
+        items.push({ name: row.acqua.trim(), categoryName: 'Acqua' })
       }
     }
 

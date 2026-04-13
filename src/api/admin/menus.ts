@@ -126,7 +126,7 @@ export async function createMenu(data: CreateMenuRequest): Promise<Menu> {
     ...populateCategories,
   })
   const defaultDeadline = new Date()
-  defaultDeadline.setHours(9, 30, 0, 0)
+  defaultDeadline.setHours(9, 0, 0, 0)
 
   const response = await apiClient.post<ApiResponse<Menu>>(`/api/menus?${query}`, {
     data: {
