@@ -15,25 +15,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon-franco-pasetti-32x32.png'],
-      manifest: {
-        name: 'Prenotazioni Mensa',
-        short_name: 'Mensa',
-        description: 'App per visualizzare il menu e ordinare il pranzo',
-        theme_color: '#0b102a',
-        background_color: '#0b102a',
-        icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-          },
-        ],
-      },
+      manifest: false, // public/manifest.json is the source of truth; disabling plugin-generated manifest.webmanifest to avoid duplicate <link> tags
     }),
   ],
   resolve: {
