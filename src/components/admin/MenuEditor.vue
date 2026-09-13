@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { Deadline, Menu } from '@/api/admin/menus'
+import type { Deadline } from '@/api/admin/menus'
 import type { Product } from '@/api/admin/products'
 import { useDebounceFn } from '@vueuse/core'
 import SkeletonLoader from '../SkeletonLoader.vue'
 import { Button } from '@/components/ui/button'
 import { Trash2 } from 'lucide-vue-next'
+import type { PossibleMenu } from '@/composables/useAdminMenus.ts'
 
 interface Props {
-  menu: Menu | null
+  menu: PossibleMenu | null
   availableProducts: Product[]
   totalAvailableProducts: number
   loading?: boolean

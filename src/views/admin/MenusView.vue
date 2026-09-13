@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAdminMenus } from '@/composables/useAdminMenus'
+import { useAdminMenus, type PossibleMenu } from '@/composables/useAdminMenus'
 import { useMenuCsvImport } from '@/composables/useMenuCsvImport'
 import MenuEditor from '@/components/admin/MenuEditor.vue'
 import DatePicker from '@/components/admin/DatePicker.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import { Button } from '@/components/ui/button'
 import MonthSelectorDialog from '@/components/admin/MonthSelectorDialog.vue'
-import type { Deadline } from '@/api/admin/menus'
+import type { Deadline, Menu } from '@/api/admin/menus'
 
 const { t } = useI18n()
 const {
@@ -81,11 +81,26 @@ const handleTimeClick = () => {
   }
 }
 
+const ensureMenuExistsOrCreateIt = async (menu: PossibleMenu) => {
+  let result = menu
+  if (!result.documentId) {
+    result = await createNewMenu({
+      day: menu.day,
+      items: menu.items.map((item) => item.documentId),
+      deadline: deadline.value,
+    })
+  }
+  if (!result.documentId) {
+    throw new Error('Menu not found')
+  }
+  return result as Menu
+}
+
 const handleUpdateDeadline = async () => {
   if (!currentMenu.value || !deadline.value) return
-
   try {
-    await updateExistingMenu(currentMenu.value.documentId, {
+    const menu = await ensureMenuExistsOrCreateIt(currentMenu.value)
+    await updateExistingMenu(menu.documentId, {
       deadline: deadline.value,
     })
   } catch (err) {
@@ -96,7 +111,8 @@ const handleUpdateDeadline = async () => {
 const handleAddProduct = async (productId: string) => {
   if (!currentMenu.value) return
   try {
-    await addProductToMenu(currentMenu.value.documentId, productId)
+    const menu = await ensureMenuExistsOrCreateIt(currentMenu.value)
+    await addProductToMenu(menu.documentId, productId)
   } catch (err) {
     console.error('Failed to add product:', err)
   }
@@ -105,7 +121,8 @@ const handleAddProduct = async (productId: string) => {
 const handleRemoveProduct = async (productId: string) => {
   if (!currentMenu.value) return
   try {
-    await removeProductFromMenu(currentMenu.value.documentId, productId)
+    const menu = await ensureMenuExistsOrCreateIt(currentMenu.value)
+    await removeProductFromMenu(menu.documentId, productId)
   } catch (err) {
     console.error('Failed to remove product:', err)
   }
@@ -116,7 +133,7 @@ const handleSearchProducts = async (searchQuery: string, start: number) => {
 }
 
 const confirmDelete = async () => {
-  if (currentMenu.value) {
+  if (currentMenu.value?.documentId) {
     await removeMenu(currentMenu.value.documentId)
     showDeleteDialog.value = false
   }

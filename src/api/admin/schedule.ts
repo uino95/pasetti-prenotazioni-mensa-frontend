@@ -28,11 +28,16 @@ export interface ScheduleDay {
   items: MenuItem[]
 }
 
-function scheduleQuery() {
+function scheduleQuery(weekday?: Weekday) {
   return qs.stringify({
     populate: {
       items: {
         populate: ['category'],
+      },
+    },
+    filters: {
+      weekday: {
+        $eq: weekday,
       },
     },
   })
@@ -43,6 +48,14 @@ export async function getScheduleDays(): Promise<ScheduleDay[]> {
     `/api/schedule-days?${scheduleQuery()}`,
   )
   return response.data.data
+}
+
+export async function getScheduleDay(date: Date): Promise<ScheduleDay | undefined> {
+  const weekday = WEEKDAYS[Math.max(date.getDay() - 1, 0)];
+  const response = await apiClient.get<ApiResponse<ScheduleDay[]>>(
+    `/api/schedule-days?${scheduleQuery(weekday)}`,
+  )
+  return response.data.data.length > 0 ? response.data.data[0] : undefined
 }
 
 export async function createScheduleDay(data: {

@@ -25,6 +25,7 @@ export interface Menu {
 export interface CreateMenuRequest {
   day: string
   items?: string[]
+  deadline?: Deadline
 }
 
 export interface UpdateMenuRequest {
