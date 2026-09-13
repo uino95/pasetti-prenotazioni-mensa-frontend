@@ -65,6 +65,11 @@ const router = createRouter({
           name: 'admin-products',
           component: () => import('@/views/admin/ProductsView.vue'),
         },
+        {
+          path: 'schedule',
+          name: 'admin-schedule',
+          component: () => import('@/views/admin/ScheduleView.vue'),
+        },
       ],
     },
     {

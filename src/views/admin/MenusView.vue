@@ -8,6 +8,7 @@ import DatePicker from '@/components/admin/DatePicker.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import { Button } from '@/components/ui/button'
 import MonthSelectorDialog from '@/components/admin/MonthSelectorDialog.vue'
+import type { Deadline } from '@/api/admin/menus'
 
 const { t } = useI18n()
 const {
@@ -28,7 +29,7 @@ const {
 const selectedDate = ref<Date>(new Date())
 const showDeleteDialog = ref(false)
 const timeInputRef = ref<HTMLInputElement | null>(null)
-const deadline = ref<string | undefined>()
+const deadline = ref<Deadline | undefined>()
 const csvFileInputRef = ref<HTMLInputElement | null>(null)
 const csvImportSuccess = ref<string | null>(null)
 const showMonthDialog = ref(false)
@@ -81,17 +82,11 @@ const handleTimeClick = () => {
 }
 
 const handleUpdateDeadline = async () => {
-  if (!currentMenu.value || !deadline.value || !selectedDate.value) return
+  if (!currentMenu.value || !deadline.value) return
 
   try {
-    const parts = deadline.value.split(':').map(Number)
-    const hours = parts[0] ?? 0
-    const minutes = parts[1] ?? 0
-    const localDateTime = new Date(selectedDate.value)
-    localDateTime.setHours(hours, minutes, 0, 0)
-
     await updateExistingMenu(currentMenu.value.documentId, {
-      deadline: localDateTime,
+      deadline: deadline.value,
     })
   } catch (err) {
     console.error('Failed to update deadline:', err)

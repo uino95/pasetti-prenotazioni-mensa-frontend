@@ -13,6 +13,7 @@ const navItems = [
   { name: 'admin.users.title', route: 'admin-users', icon: 'users' },
   { name: 'admin.menus.title', route: 'admin-menus', icon: 'calendar' },
   { name: 'admin.products.title', route: 'admin-products', icon: 'box' },
+  { name: 'admin.schedule.title', route: 'admin-schedule', icon: 'clock' },
 ]
 
 const isActive = (routeName: string) => {
@@ -78,6 +79,20 @@ const navigateTo = (routeName: string) => {
                   stroke-linejoin="round"
                   stroke-width="2"
                   d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                />
+              </svg>
+              <svg
+                v-else-if="item.icon === 'clock'"
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
               <span>{{ t(item.name) }}</span>
