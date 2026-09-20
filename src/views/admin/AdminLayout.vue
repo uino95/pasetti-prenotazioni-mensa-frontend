@@ -15,10 +15,10 @@ const { hideView } = useRouterLoading()
 const navItems = computed(() => {
   const items = [
     { name: 'admin.users.title', route: 'admin-users', icon: 'users', disabled: isSupplier() },
-    { name: 'admin.schedule.title', route: 'admin-schedule', icon: 'clock' },
-    { name: 'admin.orders.title', route: 'admin-orders', icon: 'shopping-cart' },
-    { name: 'admin.menus.title', route: 'admin-menus', icon: 'calendar' },
-    { name: 'admin.products.title', route: 'admin-products', icon: 'box' },
+    { name: 'admin.schedule.title', route: 'admin-schedule', icon: 'clock', disabled: false },
+    { name: 'admin.orders.title', route: 'admin-orders', icon: 'shopping-cart', disabled: false },
+    { name: 'admin.menus.title', route: 'admin-menus', icon: 'calendar', disabled: false },
+    { name: 'admin.products.title', route: 'admin-products', icon: 'box', disabled: false },
   ]
   return items.filter((item) => !item.disabled)
 })

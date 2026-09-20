@@ -35,6 +35,7 @@ const handleConfirm = () => {
 }
 
 const handleCancel = () => {
+  if (props.loading) return
   emit('cancel')
 }
 

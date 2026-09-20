@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import Button from '../ui/button/Button.vue'
 import { PencilIcon, Trash2 } from 'lucide-vue-next'
 import { isAdmin } from '@/utils/role'
+import { isSameLocalDay } from '@/utils/date'
 import { computed } from 'vue'
 
 interface Props {
@@ -24,18 +25,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 
 const isTodayOrder = () => {
-  const now = new Date()
-  const startOfDay = now.setHours(0, 0, 0)
-  const endOfDay = now.setHours(23, 59, 59, 999)
-  const orderDate = props.selectedDate.getTime()
-  console.log({
-    orderDate: new Date(orderDate),
-    startOfDay: new Date(startOfDay),
-    endOfDay: new Date(endOfDay),
-    lessThanStartOfDay: startOfDay < orderDate,
-    lessThanEndOfSDay: orderDate < endOfDay,
-  })
-  return startOfDay <= orderDate && orderDate <= endOfDay
+  return isSameLocalDay(props.selectedDate, new Date())
 }
 
 const isEditable = computed(() => isAdmin() && isTodayOrder())
@@ -59,7 +49,7 @@ const itemNames = (order: Order<OrderItemFullyPopulated>) =>
             <th class="text-sm font-semibold pr-4">{{ t('admin.orders.user') }}</th>
             <th class="text-sm font-semibold pr-4">{{ t('admin.orders.plates') }}</th>
             <th class="text-sm font-semibold">{{ t('admin.orders.note') }}</th>
-            <th class="text-sm font-semibold"></th>
+            <th v-if="isEditable" class="text-sm font-semibold"></th>
           </tr>
         </thead>
         <tbody>

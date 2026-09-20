@@ -1,7 +1,11 @@
 import apiClient, { type ApiResponse } from '../client'
 import qs from 'qs'
+import { toLocalDateString } from '../../utils/date'
 
-export type Deadline = `${number}${number}:${number}${number}:${number}${number}.${number}${number}${number}`
+export { toLocalDateString }
+
+export type Deadline =
+  `${number}${number}:${number}${number}:${number}${number}.${number}${number}${number}`
 
 export const DEFAULT_DEADLINE = '09:00:00.000' as Deadline
 
@@ -82,13 +86,6 @@ export async function getMenus(filters?: MenuFilters): Promise<Menu[]> {
   return response.data.data
 }
 
-export function toLocalDateString(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
 export async function getMenuByDate(date: Date): Promise<Menu | null> {
   const dateString = toLocalDateString(date)
 
@@ -112,7 +109,7 @@ export async function createMenu(data: CreateMenuRequest): Promise<Menu> {
       day: data.day,
       items: data.items ? { set: data.items } : undefined,
       deadline: toStrapiTime(data.deadline ?? DEFAULT_DEADLINE),
-      isCustom: true
+      isCustom: true,
     },
   })
   return response.data.data
@@ -120,7 +117,7 @@ export async function createMenu(data: CreateMenuRequest): Promise<Menu> {
 
 export async function updateMenu(menuId: string, data: UpdateMenuRequest): Promise<Menu> {
   const updateData: Record<string, unknown> = {
-    isCustom: true
+    isCustom: true,
   }
   if (data.day !== undefined) updateData.day = data.day
   if (data.deadline !== undefined) {

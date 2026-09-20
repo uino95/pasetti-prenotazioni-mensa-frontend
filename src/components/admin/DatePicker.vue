@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { toLocalDateString } from '@/utils/date'
 
 interface Props {
   modelValue: Date | string | null
@@ -21,13 +22,14 @@ const emit = defineEmits<{
 const dateValue = ref<string>('')
 const inputRef = ref<HTMLInputElement | null>(null)
 
-// Convert modelValue to string format for input
+// Convert modelValue to string format for input. Date-only strings pass through
+// unchanged; Dates are formatted from their local calendar components so the
+// displayed day matches the local-midnight date that produced them.
 watch(
   () => props.modelValue,
   (newValue) => {
     if (newValue) {
-      const date = typeof newValue === 'string' ? new Date(newValue) : newValue
-      dateValue.value = date.toISOString().split('T')[0] || ''
+      dateValue.value = typeof newValue === 'string' ? newValue : toLocalDateString(newValue)
     } else {
       dateValue.value = ''
     }

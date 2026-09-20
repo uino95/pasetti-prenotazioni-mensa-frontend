@@ -19,7 +19,6 @@ export function useAdminOrders() {
       currentOrders.value = await getAllOrdersByDate(date)
     } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch orders'
-      throw err
     } finally {
       loading.value = false
     }
@@ -27,11 +26,11 @@ export function useAdminOrders() {
 
   const doDeleteOrder = async (orderId: string) => {
     loading.value = true;
+    error.value = null;
     try {
       await deleteOrder(orderId)
     } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : 'Failed to delete order'
-      throw err
     } finally {
       loading.value = false
     }
@@ -41,7 +40,7 @@ export function useAdminOrders() {
     loading.value = true
     error.value = null
     try {
-      await updateOrder(orderId, { items: itemIds, note: note || undefined })
+      await updateOrder(orderId, { items: itemIds, note: note })
     } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : 'Failed to update order'
       throw err

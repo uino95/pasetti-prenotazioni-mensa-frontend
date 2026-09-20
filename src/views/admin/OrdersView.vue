@@ -6,7 +6,7 @@ import { useAdminOrders } from '@/composables/useAdminOrders'
 import OrderSummary from '@/components/admin/OrderSummary.vue'
 import OrderList from '@/components/admin/OrderList.vue'
 import OrderEditDialog from '@/components/admin/OrderEditDialog.vue'
-import { toRelativeDate } from '@/utils/date'
+import { toRelativeDate, toLocalDateString, parseLocalDate } from '@/utils/date'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import { isAdmin } from '@/utils/role'
 import { getMenuByDate } from '@/api/admin/menus'
@@ -32,12 +32,12 @@ const selectDateString = computed(() => {
 })
 
 const selectedDateString = computed(() => {
-  return selectedDate.value.toISOString().split('T')[0] || null
+  return toLocalDateString(selectedDate.value)
 })
 
 const handleDateChange = async (dateString: string) => {
   if (!dateString) return
-  const date = new Date(dateString)
+  const date = parseLocalDate(dateString)
   selectedDate.value = date
   await fetchOrdersByDate(selectedDate.value)
 }

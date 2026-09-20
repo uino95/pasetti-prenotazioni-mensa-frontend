@@ -22,6 +22,7 @@ const ordersByCategory = computed(() => {
       for (const item of order.items) {
         const itemName = item.name
         const category = item.category
+        if (!category) continue
         const categoryId = category.documentId
         const categoryName = category.name
         const categoryOrder = category.order

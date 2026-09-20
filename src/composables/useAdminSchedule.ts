@@ -171,7 +171,7 @@ export function useAdminSchedule() {
     saving.value = true
     error.value = null
     try {
-      const results = await Promise.all(
+      const results = await Promise.allSettled(
         WEEKDAYS.map(async (weekday) => {
           const existing = scheduleMap.value.get(weekday)
           if (existing) {
@@ -180,7 +180,7 @@ export function useAdminSchedule() {
           return createScheduleDay({ weekday, deadline })
         }),
       )
-      scheduleDays.value = results
+      scheduleDays.value = results.filter(r => r.status === 'fulfilled').map(r => r.value)
     } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : 'Failed to save deadlines'
       throw err

@@ -9,6 +9,7 @@ import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import { Button } from '@/components/ui/button'
 import MonthSelectorDialog from '@/components/admin/MonthSelectorDialog.vue'
 import type { Deadline, Menu } from '@/api/admin/menus'
+import { parseLocalDate, toLocalDateString } from '@/utils/date'
 
 const { t } = useI18n()
 const {
@@ -43,12 +44,12 @@ const {
 } = useMenuCsvImport()
 
 const selectedDateString = computed(() => {
-  return selectedDate.value.toISOString().split('T')[0] || null
+  return toLocalDateString(selectedDate.value)
 })
 
 const handleDateChange = async (dateString: string) => {
   if (!dateString) return
-  const date = new Date(dateString)
+  const date = parseLocalDate(dateString)
   selectedDate.value = date
   await fetchMenuByDate(date)
   if (currentMenu.value?.deadline) {
@@ -59,10 +60,7 @@ const handleDateChange = async (dateString: string) => {
 const handleCreateMenu = async () => {
   if (!selectedDate.value) return
   // Format date to YYYY-MM-DD for exact date match
-  const year = selectedDate.value.getFullYear()
-  const month = String(selectedDate.value.getMonth() + 1).padStart(2, '0')
-  const day = String(selectedDate.value.getDate()).padStart(2, '0')
-  const dateString = `${year}-${month}-${day}`
+  const dateString = toLocalDateString(selectedDate.value)
 
   try {
     await createNewMenu({
@@ -87,7 +85,7 @@ const ensureMenuExistsOrCreateIt = async (menu: PossibleMenu) => {
     result = await createNewMenu({
       day: menu.day,
       items: menu.items.map((item) => item.documentId),
-      deadline: deadline.value,
+      deadline: menu.deadline ?? deadline.value,
     })
   }
   if (!result.documentId) {

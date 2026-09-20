@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios'
 import apiClient, { type ApiResponse } from './client'
 import qs from 'qs'
+import { dayRange } from '../utils/date'
 import type { User } from './admin/users'
 import type { Category } from './admin/menus'
 
@@ -9,7 +10,7 @@ export interface OrderItem {
 }
 
 export interface OrderItemFullyPopulated extends OrderItem {
-  name: string;
+  name: string
   category: Category
 }
 
@@ -91,15 +92,13 @@ export async function updateOrder(orderId: string, request: UpdateOrderRequest):
 }
 
 export async function deleteOrder(orderId: string) {
-  await apiClient.delete(`/api/orders/${orderId}`);
+  await apiClient.delete(`/api/orders/${orderId}`)
 }
 
 const ORDERS_PAGE_SIZE = 25
 
 export async function getAllOrdersByDate(date: Date): Promise<Order<OrderItemFullyPopulated>[]> {
-  const day = new Date(date)
-  const startOfDay = new Date(day.setHours(0, 0, 0, 0))
-  const endOfDay = new Date(day.setHours(23, 59, 59, 999))
+  const { start: startOfDay, end: endOfDay } = dayRange(date)
 
   const orders: Order<OrderItemFullyPopulated>[] = []
   let start = 0
@@ -116,7 +115,7 @@ export async function getAllOrdersByDate(date: Date): Promise<Order<OrderItemFul
       populate: {
         user: true,
         items: {
-          populate: ["category"]
+          populate: ['category'],
         },
       },
     })

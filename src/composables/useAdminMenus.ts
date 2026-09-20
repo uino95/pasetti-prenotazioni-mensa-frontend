@@ -16,7 +16,7 @@ import {
 import { getProducts, type Product, type ProductFilters } from '@/api/admin/products'
 import { getScheduleDay } from '@/api/admin/schedule'
 
-export type PossibleMenu = Omit<Menu, 'documentId'> & {documentId?: string}
+export type PossibleMenu = Omit<Menu, 'documentId'> & { documentId?: string }
 
 export function useAdminMenus() {
   const currentMenu = ref<PossibleMenu | null>(null)
@@ -30,17 +30,18 @@ export function useAdminMenus() {
     error.value = null
     try {
       currentMenu.value = await getMenuByDate(date)
-      if(!currentMenu.value) {
+      if (!currentMenu.value) {
         const scheduleDay = await getScheduleDay(date)
-        if(scheduleDay){
+        if (scheduleDay) {
           currentMenu.value = {
             day: toLocalDateString(date),
-            deadline: scheduleDay.deadline as unknown as Deadline,
+            deadline: scheduleDay.deadline as Deadline,
             items: scheduleDay.items,
+            isCustom: false
           }
         }
       }
-      
+
     } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch menu'
       throw err

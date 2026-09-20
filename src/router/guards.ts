@@ -10,8 +10,8 @@ export function authGuard(
   const authStore = useAuthStore()
   if (!authStore.isAuthenticated) {
     next({ name: 'login', query: { redirect: to.fullPath } })
-  } else if (isSupplier()){
-    next({name: 'admin-schedule'})
+  } else if (isSupplier()) {
+    next({ name: 'admin-schedule' })
   } else {
     next()
   }
@@ -55,10 +55,9 @@ export function onlyAdminGuard(
   if (!authStore.isAuthenticated) {
     next({ name: 'login', query: { redirect: to.fullPath } })
   } else if (isSupplier()) {
-    // Redirect non-admin users to order page
     next({ name: 'admin-schedule' })
-  } else if (!isAdmin()){
-    next({name: 'order'})
+  } else if (!isAdmin()) {
+    next({ name: 'order' })
   } else {
     next();
   }

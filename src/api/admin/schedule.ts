@@ -51,7 +51,7 @@ export async function getScheduleDays(): Promise<ScheduleDay[]> {
 }
 
 export async function getScheduleDay(date: Date): Promise<ScheduleDay | undefined> {
-  const weekday = WEEKDAYS[Math.max(date.getDay() - 1, 0)];
+  const weekday = WEEKDAYS[(date.getDay() + 6) % 7];
   const response = await apiClient.get<ApiResponse<ScheduleDay[]>>(
     `/api/schedule-days?${scheduleQuery(weekday)}`,
   )
