@@ -2,18 +2,26 @@
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useRouterLoading } from '@/composables/useRouterLoading'
+import { isSupplier } from '@/utils/role'
 import { Button } from '@/components/ui/button'
+import { computed } from 'vue'
+import { ShoppingCartIcon } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const { hideView } = useRouterLoading()
 
-const navItems = [
-  { name: 'admin.users.title', route: 'admin-users', icon: 'users' },
-  { name: 'admin.menus.title', route: 'admin-menus', icon: 'calendar' },
-  { name: 'admin.products.title', route: 'admin-products', icon: 'box' },
-]
+const navItems = computed(() => {
+  const items = [
+    { name: 'admin.users.title', route: 'admin-users', icon: 'users', disabled: isSupplier() },
+    { name: 'admin.schedule.title', route: 'admin-schedule', icon: 'clock', disabled: false },
+    { name: 'admin.orders.title', route: 'admin-orders', icon: 'shopping-cart', disabled: false },
+    { name: 'admin.menus.title', route: 'admin-menus', icon: 'calendar', disabled: false },
+    { name: 'admin.products.title', route: 'admin-products', icon: 'box', disabled: false },
+  ]
+  return items.filter((item) => !item.disabled)
+})
 
 const isActive = (routeName: string) => {
   return route.name === routeName
@@ -80,6 +88,21 @@ const navigateTo = (routeName: string) => {
                   d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
                 />
               </svg>
+              <svg
+                v-else-if="item.icon === 'clock'"
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <ShoppingCartIcon v-else-if="item.icon === 'shopping-cart'" />
               <span>{{ t(item.name) }}</span>
             </div>
           </Button>

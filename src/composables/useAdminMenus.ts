@@ -1,45 +1,47 @@
 import { ref } from 'vue'
 import { AxiosError } from 'axios'
 import {
-  getMenus,
   getMenuByDate,
   createMenu,
   updateMenu,
   deleteMenu,
   addMenuItemToMenu,
   removeMenuItemFromMenu,
+  toLocalDateString,
   type Menu,
   type CreateMenuRequest,
   type UpdateMenuRequest,
+  type Deadline,
 } from '@/api/admin/menus'
 import { getProducts, type Product, type ProductFilters } from '@/api/admin/products'
+import { getScheduleDay } from '@/api/admin/schedule'
+
+export type PossibleMenu = Omit<Menu, 'documentId'> & { documentId?: string }
 
 export function useAdminMenus() {
-  const menus = ref<Menu[]>([])
-  const currentMenu = ref<Menu | null>(null)
+  const currentMenu = ref<PossibleMenu | null>(null)
   const availableProducts = ref<Product[]>([])
   const totalAvailableProducts = ref(0)
   const loading = ref(false)
   const error = ref<string | null>(null)
-
-  const fetchMenus = async (filters?: { day?: { from?: string; to?: string } }) => {
-    loading.value = true
-    error.value = null
-    try {
-      menus.value = await getMenus(filters)
-    } catch (err: unknown) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch menus'
-      throw err
-    } finally {
-      loading.value = false
-    }
-  }
 
   const fetchMenuByDate = async (date: Date) => {
     loading.value = true
     error.value = null
     try {
       currentMenu.value = await getMenuByDate(date)
+      if (!currentMenu.value) {
+        const scheduleDay = await getScheduleDay(date)
+        if (scheduleDay) {
+          currentMenu.value = {
+            day: toLocalDateString(date),
+            deadline: scheduleDay.deadline as Deadline,
+            items: scheduleDay.items,
+            isCustom: false
+          }
+        }
+      }
+
     } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch menu'
       throw err
@@ -153,13 +155,11 @@ export function useAdminMenus() {
   }
 
   return {
-    menus,
     currentMenu,
     availableProducts,
     totalAvailableProducts,
     loading,
     error,
-    fetchMenus,
     fetchMenuByDate,
     fetchAvailableProducts,
     createNewMenu,

@@ -39,7 +39,13 @@ export interface UserFilters {
 export async function getUsers(filters?: UserFilters): Promise<UserWithOrderCount[]> {
   const queryParams: Record<string, unknown> = {}
 
-  const filterParts: Record<string, unknown>[] = []
+  const filterParts: Record<string, unknown>[] = [{
+    role: {
+      name: {
+        $ne: "Supplier"
+      }
+    }
+  }]
   if (filters?.search) {
     filterParts.push({
       $or: [

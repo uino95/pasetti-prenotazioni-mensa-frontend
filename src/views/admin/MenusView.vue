@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAdminMenus } from '@/composables/useAdminMenus'
+import { useAdminMenus, type PossibleMenu } from '@/composables/useAdminMenus'
 import { useMenuCsvImport } from '@/composables/useMenuCsvImport'
 import MenuEditor from '@/components/admin/MenuEditor.vue'
 import DatePicker from '@/components/admin/DatePicker.vue'
 import ConfirmDialog from '@/components/admin/ConfirmDialog.vue'
 import { Button } from '@/components/ui/button'
 import MonthSelectorDialog from '@/components/admin/MonthSelectorDialog.vue'
+import type { Deadline, Menu } from '@/api/admin/menus'
+import { parseLocalDate, toLocalDateString } from '@/utils/date'
 
 const { t } = useI18n()
 const {
@@ -28,7 +30,7 @@ const {
 const selectedDate = ref<Date>(new Date())
 const showDeleteDialog = ref(false)
 const timeInputRef = ref<HTMLInputElement | null>(null)
-const deadline = ref<string | undefined>()
+const deadline = ref<Deadline | undefined>()
 const csvFileInputRef = ref<HTMLInputElement | null>(null)
 const csvImportSuccess = ref<string | null>(null)
 const showMonthDialog = ref(false)
@@ -42,12 +44,12 @@ const {
 } = useMenuCsvImport()
 
 const selectedDateString = computed(() => {
-  return selectedDate.value.toISOString().split('T')[0] || null
+  return toLocalDateString(selectedDate.value)
 })
 
 const handleDateChange = async (dateString: string) => {
   if (!dateString) return
-  const date = new Date(dateString)
+  const date = parseLocalDate(dateString)
   selectedDate.value = date
   await fetchMenuByDate(date)
   if (currentMenu.value?.deadline) {
@@ -58,10 +60,7 @@ const handleDateChange = async (dateString: string) => {
 const handleCreateMenu = async () => {
   if (!selectedDate.value) return
   // Format date to YYYY-MM-DD for exact date match
-  const year = selectedDate.value.getFullYear()
-  const month = String(selectedDate.value.getMonth() + 1).padStart(2, '0')
-  const day = String(selectedDate.value.getDate()).padStart(2, '0')
-  const dateString = `${year}-${month}-${day}`
+  const dateString = toLocalDateString(selectedDate.value)
 
   try {
     await createNewMenu({
@@ -80,18 +79,27 @@ const handleTimeClick = () => {
   }
 }
 
+const ensureMenuExistsOrCreateIt = async (menu: PossibleMenu) => {
+  let result = menu
+  if (!result.documentId) {
+    result = await createNewMenu({
+      day: menu.day,
+      items: menu.items.map((item) => item.documentId),
+      deadline: menu.deadline ?? deadline.value,
+    })
+  }
+  if (!result.documentId) {
+    throw new Error('Menu not found')
+  }
+  return result as Menu
+}
+
 const handleUpdateDeadline = async () => {
-  if (!currentMenu.value || !deadline.value || !selectedDate.value) return
-
+  if (!currentMenu.value || !deadline.value) return
   try {
-    const parts = deadline.value.split(':').map(Number)
-    const hours = parts[0] ?? 0
-    const minutes = parts[1] ?? 0
-    const localDateTime = new Date(selectedDate.value)
-    localDateTime.setHours(hours, minutes, 0, 0)
-
-    await updateExistingMenu(currentMenu.value.documentId, {
-      deadline: localDateTime,
+    const menu = await ensureMenuExistsOrCreateIt(currentMenu.value)
+    await updateExistingMenu(menu.documentId, {
+      deadline: deadline.value,
     })
   } catch (err) {
     console.error('Failed to update deadline:', err)
@@ -101,7 +109,8 @@ const handleUpdateDeadline = async () => {
 const handleAddProduct = async (productId: string) => {
   if (!currentMenu.value) return
   try {
-    await addProductToMenu(currentMenu.value.documentId, productId)
+    const menu = await ensureMenuExistsOrCreateIt(currentMenu.value)
+    await addProductToMenu(menu.documentId, productId)
   } catch (err) {
     console.error('Failed to add product:', err)
   }
@@ -110,7 +119,8 @@ const handleAddProduct = async (productId: string) => {
 const handleRemoveProduct = async (productId: string) => {
   if (!currentMenu.value) return
   try {
-    await removeProductFromMenu(currentMenu.value.documentId, productId)
+    const menu = await ensureMenuExistsOrCreateIt(currentMenu.value)
+    await removeProductFromMenu(menu.documentId, productId)
   } catch (err) {
     console.error('Failed to remove product:', err)
   }
@@ -121,7 +131,7 @@ const handleSearchProducts = async (searchQuery: string, start: number) => {
 }
 
 const confirmDelete = async () => {
-  if (currentMenu.value) {
+  if (currentMenu.value?.documentId) {
     await removeMenu(currentMenu.value.documentId)
     showDeleteDialog.value = false
   }

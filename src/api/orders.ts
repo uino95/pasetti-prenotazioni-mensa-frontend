@@ -1,15 +1,22 @@
 import { AxiosError } from 'axios'
 import apiClient, { type ApiResponse } from './client'
 import qs from 'qs'
+import { dayRange } from '../utils/date'
 import type { User } from './admin/users'
+import type { Category } from './admin/menus'
 
 export interface OrderItem {
   documentId: string
 }
 
-export interface Order {
+export interface OrderItemFullyPopulated extends OrderItem {
+  name: string
+  category: Category
+}
+
+export interface Order<T extends OrderItem = OrderItem> {
   documentId: string
-  items: OrderItem[]
+  items: T[]
   note: string | null
   createdAt: string
   user?: User
@@ -82,4 +89,54 @@ export async function updateOrder(orderId: string, request: UpdateOrderRequest):
     },
   })
   return response.data
+}
+
+export async function deleteOrder(orderId: string) {
+  await apiClient.delete(`/api/orders/${orderId}`)
+}
+
+const ORDERS_PAGE_SIZE = 25
+
+export async function getAllOrdersByDate(date: Date): Promise<Order<OrderItemFullyPopulated>[]> {
+  const { start: startOfDay, end: endOfDay } = dayRange(date)
+
+  const orders: Order<OrderItemFullyPopulated>[] = []
+  let start = 0
+
+  while (true) {
+    const query = qs.stringify({
+      filters: {
+        createdAt: { $gte: startOfDay.toISOString(), $lte: endOfDay.toISOString() },
+      },
+      pagination: {
+        start,
+        limit: ORDERS_PAGE_SIZE,
+      },
+      populate: {
+        user: true,
+        items: {
+          populate: ['category'],
+        },
+      },
+    })
+    try {
+      const response = await apiClient.get<ApiResponse<Order<OrderItemFullyPopulated>[]>>(
+        `/api/orders/?${query}`,
+      )
+      const page = response.data.data
+      if (!page || page.length === 0) {
+        return orders
+      }
+      orders.push(...page)
+      if (page.length < ORDERS_PAGE_SIZE) {
+        return orders
+      }
+      start += ORDERS_PAGE_SIZE
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response?.status === 404) {
+        return []
+      }
+      throw error
+    }
+  }
 }

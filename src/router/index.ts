@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { authGuard, loginGuard, adminGuard, guestAreaGuard } from './guards'
+import { authGuard, loginGuard, adminGuard, guestAreaGuard, onlyAdminGuard } from './guards'
 import { useRouterLoading } from '@/composables/useRouterLoading'
 
 const router = createRouter({
@@ -54,6 +54,7 @@ const router = createRouter({
           path: 'users',
           name: 'admin-users',
           component: () => import('@/views/admin/UsersView.vue'),
+          beforeEnter: onlyAdminGuard
         },
         {
           path: 'menus',
@@ -64,6 +65,16 @@ const router = createRouter({
           path: 'products',
           name: 'admin-products',
           component: () => import('@/views/admin/ProductsView.vue'),
+        },
+        {
+          path: 'schedule',
+          name: 'admin-schedule',
+          component: () => import('@/views/admin/ScheduleView.vue'),
+        },
+        {
+          path: 'orders',
+          name: 'admin-orders',
+          component: () => import('@/views/admin/OrdersView.vue'),
         },
       ],
     },

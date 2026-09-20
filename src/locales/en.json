@@ -101,6 +101,16 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "remove": "Remove",
+    "orders": {
+      "title": "Orders of the day",
+      "no_orders_yet": "No orders for {date}",
+      "summary_title": "Order summary",
+      "list_title": "Order list",
+      "edit_title": "Edit order",
+      "user": "User",
+      "plates": "Plates",
+      "note": "Notes"
+    },
     "users": {
       "title": "User Management",
       "createUser": "Create User",
@@ -172,7 +182,33 @@
       "september": "September",
       "october": "October",
       "november": "November",
-      "december": "December"
+      "december": "December",
+      "is_custom": "This menu has been edited and it differs from the weekly schedule"
+    },
+    "schedule": {
+      "title": "Weekly Schedule",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday",
+      "deadline": "Deadline",
+      "currentItems": "Items in day",
+      "noItems": "No items on this day",
+      "addProducts": "Add products",
+      "searchProducts": "Search products...",
+      "noAvailableProducts": "No available products",
+      "applyToAll": "Apply to all days",
+      "saved": "saved",
+      "default": "default",
+      "futureMenusTitle": "Future menus on this day",
+      "futureMenusDescription": "Menus already exist for future dates that fall on this weekday. Select the ones you want to delete (they'll be regenerated from the updated template) or continue to keep them all.",
+      "futureMenusDate": "Date",
+      "futureMenusItems": "Items",
+      "futureMenusDeleteAndContinue": "Delete selected and continue",
+      "futureMenusContinue": "Continue"
     },
     "products": {
       "title": "Product Management",
@@ -189,6 +225,11 @@
     }
   },
   "utils": {
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "dates": {
+      "today": "today",
+      "tomorrow": "tomorrow",
+      "yesterday": "yesterday"
+    }
   }
 }
