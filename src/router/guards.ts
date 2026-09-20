@@ -54,7 +54,7 @@ export function onlyAdminGuard(
   const authStore = useAuthStore()
   if (!authStore.isAuthenticated) {
     next({ name: 'login', query: { redirect: to.fullPath } })
-  } else if (!isSupplier()) {
+  } else if (isSupplier()) {
     // Redirect non-admin users to order page
     next({ name: 'admin-schedule' })
   } else if (!isAdmin()){

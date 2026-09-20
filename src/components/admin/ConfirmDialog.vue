@@ -10,12 +10,14 @@ interface Props {
   confirmText?: string
   cancelText?: string
   variant?: 'danger' | 'warning' | 'info'
+  loading?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   confirmText: undefined,
   cancelText: undefined,
   variant: 'danger',
+  loading: false,
 })
 
 const emit = defineEmits<{
@@ -54,10 +56,10 @@ const confirmButtonVariant = computed(() => {
           <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ title }}</h3>
           <p class="text-gray-600 mb-6">{{ message }}</p>
           <div class="flex justify-end gap-3">
-            <Button @click="handleCancel" variant="secondary">
+            <Button @click="handleCancel" variant="secondary" :disabled="loading">
               {{ defaultCancelText }}
             </Button>
-            <Button @click="handleConfirm" :variant="confirmButtonVariant">
+            <Button @click="handleConfirm" :variant="confirmButtonVariant" :disabled="loading">
               {{ defaultConfirmText }}
             </Button>
           </div>

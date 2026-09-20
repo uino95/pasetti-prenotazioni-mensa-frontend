@@ -2,14 +2,20 @@ import { AxiosError } from 'axios'
 import apiClient, { type ApiResponse } from './client'
 import qs from 'qs'
 import type { User } from './admin/users'
+import type { Category } from './admin/menus'
 
 export interface OrderItem {
   documentId: string
 }
 
-export interface Order {
+export interface OrderItemFullyPopulated extends OrderItem {
+  name: string;
+  category: Category
+}
+
+export interface Order<T extends OrderItem = OrderItem> {
   documentId: string
-  items: OrderItem[]
+  items: T[]
   note: string | null
   createdAt: string
   user?: User
@@ -82,4 +88,36 @@ export async function updateOrder(orderId: string, request: UpdateOrderRequest):
     },
   })
   return response.data
+}
+
+export async function deleteOrder(orderId: string) {
+  await apiClient.delete(`/api/orders/${orderId}`);
+}
+
+export async function getAllOrdersByDate(date: Date): Promise<Order<OrderItemFullyPopulated>[]> {
+  const startOfDay = new Date(date.setHours(0, 0, 0, 0))
+  const endOfDay = new Date(date.setHours(23, 59, 59, 999))
+  const query = qs.stringify({
+    filters: {
+      createdAt: { $gte: startOfDay.toISOString(), $lte: endOfDay.toISOString() },
+    },
+    populate: {
+      user: true,
+      items: {
+        populate: ["category"]
+      },
+    },
+  })
+  try {
+    const response = await apiClient.get<ApiResponse<Order<OrderItemFullyPopulated>[]>>(`/api/orders/?${query}`)
+    if (!response.data.data[0]) {
+      return []
+    }
+    return response.data.data
+  } catch (error: unknown) {
+    if (error instanceof AxiosError && error.response?.status === 404) {
+      return []
+    }
+    throw error
+  }
 }

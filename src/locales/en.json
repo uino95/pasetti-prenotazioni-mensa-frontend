@@ -101,6 +101,16 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "remove": "Remove",
+    "orders": {
+      "title": "Orders of the day",
+      "no_orders_yet": "No orders for {date}",
+      "summary_title": "Order summary",
+      "list_title": "Order list",
+      "edit_title": "Edit order",
+      "user": "User",
+      "plates": "Plates",
+      "note": "Notes"
+    },
     "users": {
       "title": "User Management",
       "createUser": "Create User",
@@ -215,6 +225,11 @@
     }
   },
   "utils": {
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "dates": {
+      "today": "today",
+      "tomorrow": "tomorrow",
+      "yesterday": "yesterday"
+    }
   }
 }

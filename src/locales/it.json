@@ -101,6 +101,16 @@
     "cancel": "Annulla",
     "confirm": "Conferma",
     "remove": "Rimuovi",
+    "orders": {
+      "title": "Ordini del giorno",
+      "no_orders_yet": "Nessun ordine per {date}",
+      "summary_title": "Riepilogo ordini",
+      "list_title": "Elenco ordini",
+      "edit_title": "Modifica ordine",
+      "user": "Utente",
+      "plates": "Piatti",
+      "note": "Note"
+    },
     "users": {
       "title": "Gestione Utenti",
       "createUser": "Crea Utente",
@@ -215,6 +225,11 @@
     }
   },
   "utils": {
-    "loadMore": "Carica altro"
+    "loadMore": "Carica altro",
+    "dates": {
+      "today": "oggi",
+      "tomorrow": "domani",
+      "yesterday": "ieri"
+    }
   }
 }

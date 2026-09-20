@@ -5,6 +5,7 @@ import { useRouterLoading } from '@/composables/useRouterLoading'
 import { isSupplier } from '@/utils/role'
 import { Button } from '@/components/ui/button'
 import { computed } from 'vue'
+import { ShoppingCartIcon } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -15,6 +16,7 @@ const navItems = computed(() => {
   const items = [
     { name: 'admin.users.title', route: 'admin-users', icon: 'users', disabled: isSupplier() },
     { name: 'admin.schedule.title', route: 'admin-schedule', icon: 'clock' },
+    { name: 'admin.orders.title', route: 'admin-orders', icon: 'shopping-cart' },
     { name: 'admin.menus.title', route: 'admin-menus', icon: 'calendar' },
     { name: 'admin.products.title', route: 'admin-products', icon: 'box' },
   ]
@@ -100,6 +102,7 @@ const navigateTo = (routeName: string) => {
                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
+              <ShoppingCartIcon v-else-if="item.icon === 'shopping-cart'" />
               <span>{{ t(item.name) }}</span>
             </div>
           </Button>
