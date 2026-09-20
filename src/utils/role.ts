@@ -14,3 +14,13 @@ export function isAdmin(): boolean {
 
   return false
 }
+
+export function isSupplier(): boolean {
+  const authStore = useAuthStore();
+
+  if(authStore.user?.role) {
+    return authStore.user.role.name === 'Supplier';
+  }
+
+  return false;
+}

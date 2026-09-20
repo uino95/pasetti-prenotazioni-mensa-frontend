@@ -2,19 +2,24 @@
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useRouterLoading } from '@/composables/useRouterLoading'
+import { isSupplier } from '@/utils/role'
 import { Button } from '@/components/ui/button'
+import { computed } from 'vue'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const { hideView } = useRouterLoading()
 
-const navItems = [
-  { name: 'admin.users.title', route: 'admin-users', icon: 'users' },
-  { name: 'admin.menus.title', route: 'admin-menus', icon: 'calendar' },
-  { name: 'admin.products.title', route: 'admin-products', icon: 'box' },
-  { name: 'admin.schedule.title', route: 'admin-schedule', icon: 'clock' },
-]
+const navItems = computed(() => {
+  const items = [
+    { name: 'admin.users.title', route: 'admin-users', icon: 'users', disabled: isSupplier() },
+    { name: 'admin.schedule.title', route: 'admin-schedule', icon: 'clock' },
+    { name: 'admin.menus.title', route: 'admin-menus', icon: 'calendar' },
+    { name: 'admin.products.title', route: 'admin-products', icon: 'box' },
+  ]
+  return items.filter((item) => !item.disabled)
+})
 
 const isActive = (routeName: string) => {
   return route.name === routeName
