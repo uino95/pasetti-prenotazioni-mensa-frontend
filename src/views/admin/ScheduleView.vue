@@ -19,16 +19,26 @@ const {
   loading,
   saving,
   error,
+  futureMenus,
+  checkingFutureMenus,
+  resolvedWeekdays,
   fetchScheduleDays,
   fetchAvailableProducts,
   addProductToDay,
   removeProductFromDay,
   saveAllDeadlines,
+  fetchFutureMenusForWeekday,
+  deleteFutureMenus,
 } = useAdminSchedule()
 
 const expandedDay = ref<Weekday | null>(null)
 const searchQuery = ref('')
 const uniqueDeadline = ref(DEFAULT_DEADLINE.slice(0, 5))
+
+const pendingChange = ref<(() => Promise<void>) | null>(null)
+const showFutureMenusPrompt = ref(false)
+const selectedMenuIds = ref<Set<string>>(new Set())
+const visibleFutureMenusCount = ref(10)
 
 const WEEKDAY_LABELS: Record<Weekday, string> = {
   monday: t('admin.schedule.monday'),
@@ -75,8 +85,14 @@ const availableProductsToAdd = computed(() => {
 })
 
 const toggleDay = (weekday: Weekday) => {
+  const opening = expandedDay.value !== weekday
   expandedDay.value = expandedDay.value === weekday ? null : weekday
   if (expandedDay.value) {
+    if (opening) {
+      resolvedWeekdays.value.delete(weekday)
+      showFutureMenusPrompt.value = false
+      pendingChange.value = null
+    }
     searchQuery.value = ''
     fetchAvailableProducts()
     requestAnimationFrame(() => {
@@ -86,16 +102,82 @@ const toggleDay = (weekday: Weekday) => {
   }
 }
 
+const guardChange = async (weekday: Weekday, action: () => Promise<void>) => {
+  if (resolvedWeekdays.value.has(weekday)) {
+    await action()
+    return
+  }
+  await fetchFutureMenusForWeekday(weekday)
+  if (futureMenus.value.length === 0) {
+    resolvedWeekdays.value.add(weekday)
+    await action()
+    return
+  }
+  pendingChange.value = action
+  selectedMenuIds.value = new Set()
+  visibleFutureMenusCount.value = 10
+  showFutureMenusPrompt.value = true
+}
+
 const handleAddProduct = async (weekday: Weekday, productId: string) => {
-  await addProductToDay(weekday, productId)
+  await guardChange(weekday, () => addProductToDay(weekday, productId))
 }
 
 const handleRemoveProduct = async (weekday: Weekday, productId: string) => {
-  await removeProductFromDay(weekday, productId)
+  await guardChange(weekday, () => removeProductFromDay(weekday, productId))
 }
 
 const handleDeadlineChange = () => {
-  updateAllDeadlines()
+  if (!expandedDay.value) {
+    updateAllDeadlines()
+    return
+  }
+  guardChange(expandedDay.value, () => updateAllDeadlines())
+}
+
+const toggleMenuSelection = (menuId: string) => {
+  const next = new Set(selectedMenuIds.value)
+  if (next.has(menuId)) {
+    next.delete(menuId)
+  } else {
+    next.add(menuId)
+  }
+  selectedMenuIds.value = next
+}
+
+const visibleFutureMenus = computed(() =>
+  futureMenus.value.slice(0, visibleFutureMenusCount.value),
+)
+
+const allVisibleFutureMenusSelected = computed(
+  () =>
+    visibleFutureMenus.value.length > 0 &&
+    visibleFutureMenus.value.every((menu) => selectedMenuIds.value.has(menu.documentId)),
+)
+
+const toggleSelectAllVisible = () => {
+  const next = new Set(selectedMenuIds.value)
+  if (allVisibleFutureMenusSelected.value) {
+    visibleFutureMenus.value.forEach((menu) => next.delete(menu.documentId))
+  } else {
+    visibleFutureMenus.value.forEach((menu) => next.add(menu.documentId))
+  }
+  selectedMenuIds.value = next
+}
+
+const loadMoreFutureMenus = () => {
+  visibleFutureMenusCount.value += 10
+}
+
+const confirmFutureMenus = async () => {
+  const weekday = expandedDay.value
+  if (!weekday) return
+  await deleteFutureMenus(Array.from(selectedMenuIds.value))
+  resolvedWeekdays.value.add(weekday)
+  showFutureMenusPrompt.value = false
+  const action = pendingChange.value
+  pendingChange.value = null
+  await action?.()
 }
 
 const updateAllDeadlines = useDebounceFn(async () => {
@@ -171,7 +253,74 @@ onMounted(async () => {
           </div>
         </div>
 
-        <div v-if="expandedDay === weekday" class="border-t border-gray-100 px-4 pb-4">
+        <div
+          v-if="expandedDay === weekday && showFutureMenusPrompt"
+          class="border-t border-gray-100 px-4 pb-4"
+        >
+          <div class="py-3">
+            <h4 class="text-sm font-medium text-gray-900 mb-1">
+              {{ t('admin.schedule.futureMenusTitle') }}
+            </h4>
+            <p class="text-xs text-gray-500 mb-3">
+              {{ t('admin.schedule.futureMenusDescription') }}
+            </p>
+
+            <div v-if="checkingFutureMenus" class="space-y-2">
+              <SkeletonLoader v-for="i in 3" :key="i" height="40px" />
+            </div>
+            <div v-else class="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+              <div
+                class="flex items-center gap-3 px-3 py-2 bg-gray-100 text-xs font-medium text-gray-500 uppercase"
+              >
+                <input
+                  type="checkbox"
+                  :checked="allVisibleFutureMenusSelected"
+                  @change="toggleSelectAllVisible"
+                />
+                <span>{{ t('admin.schedule.futureMenusDate') }}</span>
+                <span class="ml-auto">{{ t('admin.schedule.futureMenusItems') }}</span>
+              </div>
+              <div
+                v-for="menu in visibleFutureMenus"
+                :key="menu.documentId"
+                class="flex items-center gap-3 px-3 py-2 border-t border-gray-200"
+              >
+                <input
+                  type="checkbox"
+                  :checked="selectedMenuIds.has(menu.documentId)"
+                  @change="toggleMenuSelection(menu.documentId)"
+                />
+                <span class="text-sm text-gray-900">{{ menu.day }}</span>
+                <span class="ml-auto text-xs text-gray-500">
+                  {{ menu.items.map((item) => item.name).join(', ') || '-' }}
+                </span>
+              </div>
+              <div
+                v-if="visibleFutureMenusCount < futureMenus.length"
+                class="flex justify-center py-2 border-t border-gray-200"
+              >
+                <Button @click="loadMoreFutureMenus" variant="ghost" size="sm">
+                  {{ t('utils.loadMore') }}
+                </Button>
+              </div>
+            </div>
+
+            <div class="flex justify-end mt-3">
+              <Button @click="confirmFutureMenus" :disabled="saving">
+                {{
+                  selectedMenuIds.size > 0
+                    ? t('admin.schedule.futureMenusDeleteAndContinue')
+                    : t('admin.schedule.futureMenusContinue')
+                }}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-else-if="expandedDay === weekday"
+          class="border-t border-gray-100 px-4 pb-4"
+        >
           <div class="py-3">
             <div v-if="expandedItemsByCategory.length === 0" class="text-gray-500 text-center py-4">
               {{ t('admin.schedule.noItems') }}

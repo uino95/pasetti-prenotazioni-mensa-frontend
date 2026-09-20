@@ -191,7 +191,13 @@
       "noAvailableProducts": "Nessun prodotto disponibile",
       "applyToAll": "Applica a tutti i giorni",
       "saved": "salvato",
-      "default": "predefinito"
+      "default": "predefinito",
+      "futureMenusTitle": "Menu futuri per questo giorno",
+      "futureMenusDescription": "Sono già stati creati dei menu per date future che cadono in questo giorno della settimana. Seleziona quelli che vuoi eliminare (verranno ricreati con il nuovo modello) oppure continua per mantenerli tutti.",
+      "futureMenusDate": "Data",
+      "futureMenusItems": "Elementi",
+      "futureMenusDeleteAndContinue": "Elimina selezionati e continua",
+      "futureMenusContinue": "Continua"
     },
     "products": {
       "title": "Gestione Prodotti",

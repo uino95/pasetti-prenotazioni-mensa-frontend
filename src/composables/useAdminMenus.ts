@@ -7,6 +7,7 @@ import {
   deleteMenu,
   addMenuItemToMenu,
   removeMenuItemFromMenu,
+  toLocalDateString,
   type Menu,
   type CreateMenuRequest,
   type UpdateMenuRequest,
@@ -33,7 +34,7 @@ export function useAdminMenus() {
         const scheduleDay = await getScheduleDay(date)
         if(scheduleDay){
           currentMenu.value = {
-            day: scheduleDay.weekday,
+            day: toLocalDateString(date),
             deadline: scheduleDay.deadline as unknown as Deadline,
             items: scheduleDay.items,
           }

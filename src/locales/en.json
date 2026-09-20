@@ -191,7 +191,13 @@
       "noAvailableProducts": "No available products",
       "applyToAll": "Apply to all days",
       "saved": "saved",
-      "default": "default"
+      "default": "default",
+      "futureMenusTitle": "Future menus on this day",
+      "futureMenusDescription": "Menus already exist for future dates that fall on this weekday. Select the ones you want to delete (they'll be regenerated from the updated template) or continue to keep them all.",
+      "futureMenusDate": "Date",
+      "futureMenusItems": "Items",
+      "futureMenusDeleteAndContinue": "Delete selected and continue",
+      "futureMenusContinue": "Continue"
     },
     "products": {
       "title": "Product Management",

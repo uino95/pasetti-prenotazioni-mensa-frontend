@@ -1,9 +1,16 @@
 import apiClient, { type ApiResponse } from '../client'
 import qs from 'qs'
 
-export type Deadline = `${number}${number}:${number}${number}:${number}${number}`
+export type Deadline = `${number}${number}:${number}${number}:${number}${number}.${number}${number}${number}`
 
-export const DEFAULT_DEADLINE = '09:00:00' as Deadline
+export const DEFAULT_DEADLINE = '09:00:00.000' as Deadline
+
+/** Strapi time fields require HH:mm:ss.SSS. `<input type="time">` yields HH:mm. */
+export function toStrapiTime(value: string): Deadline {
+  const [hours = '00', minutes = '00', rest = '00'] = value.split(':')
+  const seconds = rest.split('.')[0] || '00'
+  return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}.000` as Deadline
+}
 
 export interface Category {
   documentId: string
@@ -74,11 +81,15 @@ export async function getMenus(filters?: MenuFilters): Promise<Menu[]> {
   return response.data.data
 }
 
-export async function getMenuByDate(date: Date): Promise<Menu | null> {
+export function toLocalDateString(date: Date): string {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
-  const dateString = `${year}-${month}-${day}`
+  return `${year}-${month}-${day}`
+}
+
+export async function getMenuByDate(date: Date): Promise<Menu | null> {
+  const dateString = toLocalDateString(date)
 
   const query = qs.stringify({
     filters: { day: { $eq: dateString } },
@@ -99,7 +110,7 @@ export async function createMenu(data: CreateMenuRequest): Promise<Menu> {
     data: {
       day: data.day,
       items: data.items ? { set: data.items } : undefined,
-      deadline: DEFAULT_DEADLINE,
+      deadline: toStrapiTime(data.deadline ?? DEFAULT_DEADLINE),
     },
   })
   return response.data.data
@@ -109,7 +120,7 @@ export async function updateMenu(menuId: string, data: UpdateMenuRequest): Promi
   const updateData: Record<string, unknown> = {}
   if (data.day !== undefined) updateData.day = data.day
   if (data.deadline !== undefined) {
-    updateData.deadline = data.deadline
+    updateData.deadline = toStrapiTime(data.deadline)
   }
   if (data.items !== undefined) {
     updateData.items = { set: data.items }
@@ -124,6 +135,10 @@ export async function updateMenu(menuId: string, data: UpdateMenuRequest): Promi
 
 export async function deleteMenu(menuId: string): Promise<void> {
   await apiClient.delete(`/api/menus/${menuId}`)
+}
+
+export async function deleteMenus(menuIds: string[]): Promise<void> {
+  await Promise.all(menuIds.map((id) => deleteMenu(id)))
 }
 
 export async function addMenuItemToMenu(menuId: string, itemId: string): Promise<Menu> {

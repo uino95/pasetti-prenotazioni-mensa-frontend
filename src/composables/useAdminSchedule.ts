@@ -10,7 +10,19 @@ import {
   WEEKDAYS,
 } from '@/api/admin/schedule'
 import { getProducts, type Product, type ProductFilters } from '@/api/admin/products'
-import { DEFAULT_DEADLINE } from '@/api/admin/menus'
+import { DEFAULT_DEADLINE, getMenus, deleteMenus, type Menu } from '@/api/admin/menus'
+
+function getWeekdayForDate(day: string): Weekday {
+  return WEEKDAYS[(new Date(day).getDay() + 6) % 7]!
+}
+
+function todayDateString(): string {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const dayOfMonth = String(today.getDate()).padStart(2, '0')
+  return `${year}-${month}-${dayOfMonth}`
+}
 
 export function useAdminSchedule() {
   const scheduleDays = ref<ScheduleDay[]>([])
@@ -19,6 +31,9 @@ export function useAdminSchedule() {
   const loading = ref(false)
   const saving = ref(false)
   const error = ref<string | null>(null)
+  const futureMenus = ref<Menu[]>([])
+  const checkingFutureMenus = ref(false)
+  const resolvedWeekdays = ref<Set<Weekday>>(new Set())
 
   const scheduleMap = computed(() => {
     const map = new Map<Weekday, ScheduleDay>()
@@ -120,6 +135,38 @@ export function useAdminSchedule() {
     }
   }
 
+  const fetchFutureMenusForWeekday = async (weekday: Weekday) => {
+    checkingFutureMenus.value = true
+    error.value = null
+    try {
+      const menus = await getMenus({ day: { from: todayDateString() } })
+      futureMenus.value = menus
+        .filter((menu) => getWeekdayForDate(menu.day) === weekday)
+        .sort((a, b) => a.day.localeCompare(b.day))
+    } catch (err: unknown) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch future menus'
+      throw err
+    } finally {
+      checkingFutureMenus.value = false
+    }
+  }
+
+  const deleteFutureMenus = async (menuIds: string[]) => {
+    if (menuIds.length === 0) return
+    saving.value = true
+    error.value = null
+    try {
+      await deleteMenus(menuIds)
+      const deleted = new Set(menuIds)
+      futureMenus.value = futureMenus.value.filter((menu) => !deleted.has(menu.documentId))
+    } catch (err: unknown) {
+      error.value = err instanceof Error ? err.message : 'Failed to delete future menus'
+      throw err
+    } finally {
+      saving.value = false
+    }
+  }
+
   const saveAllDeadlines = async (deadline: string) => {
     saving.value = true
     error.value = null
@@ -151,11 +198,16 @@ export function useAdminSchedule() {
     loading,
     saving,
     error,
+    futureMenus,
+    checkingFutureMenus,
+    resolvedWeekdays,
     fetchScheduleDays,
     fetchAvailableProducts,
     addProductToDay,
     removeProductFromDay,
     saveDeadline,
     saveAllDeadlines,
+    fetchFutureMenusForWeekday,
+    deleteFutureMenus,
   }
 }

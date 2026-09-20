@@ -1,6 +1,6 @@
 import apiClient, { type ApiResponse } from '../client'
 import qs from 'qs'
-import type { MenuItem } from './menus'
+import { toStrapiTime, type MenuItem } from './menus'
 
 export type Weekday =
   | 'monday'
@@ -68,7 +68,7 @@ export async function createScheduleDay(data: {
     {
       data: {
         weekday: data.weekday,
-        deadline: data.deadline,
+        deadline: toStrapiTime(data.deadline),
         items: data.items ? { set: data.items } : undefined,
       },
     },
@@ -82,7 +82,12 @@ export async function updateScheduleDay(
 ): Promise<ScheduleDay> {
   const response = await apiClient.put<ApiResponse<ScheduleDay>>(
     `/api/schedule-days/${documentId}?${scheduleQuery()}`,
-    { data },
+    {
+      data: {
+        ...data,
+        deadline: data.deadline !== undefined ? toStrapiTime(data.deadline) : undefined,
+      },
+    },
   )
   return response.data.data
 }
