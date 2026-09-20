@@ -94,30 +94,50 @@ export async function deleteOrder(orderId: string) {
   await apiClient.delete(`/api/orders/${orderId}`);
 }
 
+const ORDERS_PAGE_SIZE = 25
+
 export async function getAllOrdersByDate(date: Date): Promise<Order<OrderItemFullyPopulated>[]> {
-  const startOfDay = new Date(date.setHours(0, 0, 0, 0))
-  const endOfDay = new Date(date.setHours(23, 59, 59, 999))
-  const query = qs.stringify({
-    filters: {
-      createdAt: { $gte: startOfDay.toISOString(), $lte: endOfDay.toISOString() },
-    },
-    populate: {
-      user: true,
-      items: {
-        populate: ["category"]
+  const day = new Date(date)
+  const startOfDay = new Date(day.setHours(0, 0, 0, 0))
+  const endOfDay = new Date(day.setHours(23, 59, 59, 999))
+
+  const orders: Order<OrderItemFullyPopulated>[] = []
+  let start = 0
+
+  while (true) {
+    const query = qs.stringify({
+      filters: {
+        createdAt: { $gte: startOfDay.toISOString(), $lte: endOfDay.toISOString() },
       },
-    },
-  })
-  try {
-    const response = await apiClient.get<ApiResponse<Order<OrderItemFullyPopulated>[]>>(`/api/orders/?${query}`)
-    if (!response.data.data[0]) {
-      return []
+      pagination: {
+        start,
+        limit: ORDERS_PAGE_SIZE,
+      },
+      populate: {
+        user: true,
+        items: {
+          populate: ["category"]
+        },
+      },
+    })
+    try {
+      const response = await apiClient.get<ApiResponse<Order<OrderItemFullyPopulated>[]>>(
+        `/api/orders/?${query}`,
+      )
+      const page = response.data.data
+      if (!page || page.length === 0) {
+        return orders
+      }
+      orders.push(...page)
+      if (page.length < ORDERS_PAGE_SIZE) {
+        return orders
+      }
+      start += ORDERS_PAGE_SIZE
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response?.status === 404) {
+        return []
+      }
+      throw error
     }
-    return response.data.data
-  } catch (error: unknown) {
-    if (error instanceof AxiosError && error.response?.status === 404) {
-      return []
-    }
-    throw error
   }
 }
