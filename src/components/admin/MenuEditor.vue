@@ -47,6 +47,10 @@ const loadMoreProducts = () => {
   emit('search-products', searchQuery.value, props.availableProducts.length)
 }
 
+const isCustomMenu = computed(() => {
+  return props.menu?.documentId && props.menu.isCustom
+})
+
 const menuProductIds = computed(() => {
   return new Set(props.menu?.items?.map((item) => item.documentId) || [])
 })
@@ -75,9 +79,16 @@ const menuItemsByCategory = computed(() => {
 <template>
   <div v-if="menu || loading" class="space-y-6">
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">
-        {{ t('admin.menus.currentItems') }}
-      </h3>
+      <div class="flex gap-4 items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">
+          {{ t('admin.menus.currentItems') }}
+        </h3>
+        <span
+          v-if="isCustomMenu"
+          class="border border-yellow-600 bg-yellow-100 text-yellow-700 p-2 rounded-md"
+          >{{ t('admin.menus.is_custom') }}</span
+        >
+      </div>
       <div
         v-if="menuItemsByCategory.length === 0 && !loading"
         class="text-gray-500 text-center py-4"

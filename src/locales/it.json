@@ -172,7 +172,8 @@
       "september": "Settembre",
       "october": "Ottobre",
       "november": "Novembre",
-      "december": "Dicembre"
+      "december": "Dicembre",
+      "is_custom": "Questo menu è stato modificato e differisce dalla settimana tipo"
     },
     "schedule": {
       "title": "Settimana Tipo",

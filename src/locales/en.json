@@ -172,7 +172,8 @@
       "september": "September",
       "october": "October",
       "november": "November",
-      "december": "December"
+      "december": "December",
+      "is_custom": "This menu has been edited and it differs from the weekly schedule"
     },
     "schedule": {
       "title": "Weekly Schedule",

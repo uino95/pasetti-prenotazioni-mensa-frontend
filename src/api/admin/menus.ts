@@ -27,6 +27,7 @@ export interface Menu {
   day: string
   deadline: Deadline
   items: MenuItem[]
+  isCustom: boolean
 }
 
 export interface CreateMenuRequest {
@@ -111,13 +112,16 @@ export async function createMenu(data: CreateMenuRequest): Promise<Menu> {
       day: data.day,
       items: data.items ? { set: data.items } : undefined,
       deadline: toStrapiTime(data.deadline ?? DEFAULT_DEADLINE),
+      isCustom: true
     },
   })
   return response.data.data
 }
 
 export async function updateMenu(menuId: string, data: UpdateMenuRequest): Promise<Menu> {
-  const updateData: Record<string, unknown> = {}
+  const updateData: Record<string, unknown> = {
+    isCustom: true
+  }
   if (data.day !== undefined) updateData.day = data.day
   if (data.deadline !== undefined) {
     updateData.deadline = toStrapiTime(data.deadline)
