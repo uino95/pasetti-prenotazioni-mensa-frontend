@@ -41,6 +41,7 @@ describe('menus API — deadline verbatim round-trip', () => {
             day: '2026-01-15',
             deadline: '11:30:00.000',
             items: [],
+            isCustom: false
           },
         ],
         meta: { pagination: { page: 1, pageSize: 25, pageCount: 1, total: 1 } },
@@ -61,6 +62,7 @@ describe('menus API — deadline verbatim round-trip', () => {
           day: '2026-06-15',
           deadline: '09:00:00.000',
           items: [],
+          isCustom: false
         },
         meta: { pagination: { page: 1, pageSize: 25, pageCount: 1, total: 1 } },
       },
@@ -86,6 +88,7 @@ describe('menus API — deadline verbatim round-trip', () => {
           day: '2026-03-20',
           deadline: '14:00:00.000',
           items: [],
+          isCustom: false
         },
         meta: { pagination: { page: 1, pageSize: 25, pageCount: 1, total: 1 } },
       },
@@ -117,6 +120,7 @@ describe('menus API — deadline verbatim round-trip', () => {
           day: '2026-03-20',
           deadline: '09:00:00.000',
           items: [],
+          isCustom: false
         },
         meta: { pagination: { page: 1, pageSize: 25, pageCount: 1, total: 1 } },
       },
